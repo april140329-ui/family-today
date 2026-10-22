@@ -14,6 +14,7 @@
 .ev-who{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:13px}.who-label{font-weight:700;color:var(--muted)}.who-opt{display:inline-flex;align-items:center;gap:4px;cursor:pointer}.who-opt input{width:16px;height:16px;accent-color:var(--accent)}
 @media(max-width:720px){.add{grid-template-columns:1fr 100px}.chip{background:var(--bar);border-left:0}.cal-cell .hol{font-size:9px}.cal-tools input{flex-basis:100%}}
 @media(max-width:720px){.cal .headrow{flex-wrap:wrap}.cal-nav{gap:6px}.cal-nav b{min-width:0;white-space:nowrap;font-size:15px}.cal-nav .btn{padding:6px 9px}.day-item{grid-template-columns:auto minmax(0,1fr)}.day-actions{grid-column:1/-1;justify-content:flex-start}}
+.ed-time{width:156px;flex:0 0 156px}.add{grid-template-columns:1fr 156px 104px auto}.add input[type=time]{min-width:150px}@media(max-width:720px){.add{grid-template-columns:1fr 156px}.edit-fields{flex-wrap:wrap}.ed-time{flex:0 0 156px}}
 </style></head>
 <body><main>
 <section class="card gate" id="gate"><h1 style="margin-top:0">우리 가족 오늘 할 일</h1><p id="gateMsg">가족 구글 계정으로 로그인하면 함께 쓰는 할 일을 볼 수 있어요.</p><button class="btn primary" id="loginBtn">구글로 로그인</button></section>
