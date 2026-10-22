@@ -132,6 +132,7 @@ function check() {
 }
 setInterval(check, 15000);
 setInterval(() => { if (store) { rollover(); render(); } }, 60000);
-// 최초 1회 데이터 등록용(가족 계정 로그인 상태에서만 동작, 보안 규칙으로 보호됨)
-window.__seedFamily = data => setDoc(ref, data);
+// 학교 메모 자동 갱신용(가족 계정 로그인 상태에서만 동작, 보안 규칙으로 보호됨). 할 일·진행내역은 건드리지 않습니다.
+window.__getSchoolNotes = () => JSON.parse(JSON.stringify(store?.schoolNotes || []));
+window.__setSchoolNotes = async notes => { await updateDoc(ref, { schoolNotes: notes }); return notes.length; };
 </script></body></html>
