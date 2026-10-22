@@ -27,7 +27,7 @@
 <header class="top"><div><h1>우리 가족 오늘 할 일</h1><div class="date" id="today"></div></div><div class="top-actions"><span class="who" id="who"></span><button class="btn" id="notify">알림 켜기</button><button class="btn small" id="logout">로그아웃</button></div></header>
 <section class="card memo" id="schoolMemo"><div class="headrow"><h2>오늘 메모 · 학교 알림(초2)</h2><span class="count">하이클래스 2-3반·학교 공지 기준</span></div><div class="list" id="memoList"></div><div class="chart-note">지난 일정은 자동으로 숨겨져요. 신청 링크·세부 내용은 하이클래스 원문에서 확인하세요.</div></section>
 <section class="card cal" id="calCard"><div class="headrow"><h2>가족 캘린더</h2><div class="cal-nav"><button class="btn small" id="calPrev" type="button" aria-label="이전 달">◀</button><b id="calTitle"></b><button class="btn small" id="calNext" type="button" aria-label="다음 달">▶</button><button class="btn small" id="calToday" type="button">오늘</button></div></div>
-<div class="cal-tools"><div class="seg"><button class="seg-btn on" id="viewMonth" type="button">월간</button><button class="seg-btn" id="viewList" type="button">목록</button></div><select id="calFilter" aria-label="사람별 보기"></select><select id="calColorBy" aria-label="색상 기준"><option value="by">색: 입력한 사람</option><option value="who">색: 대상자</option></select><input id="calSearch" type="search" placeholder="일정 검색(제목·메모)" aria-label="일정 검색"></div>
+<div class="cal-tools"><div class="seg"><button class="seg-btn on" id="viewMonth" type="button">월간</button><button class="seg-btn" id="viewList" type="button">목록</button></div><select id="calFilter" aria-label="사람별 보기"></select><select id="calColorBy" hidden></select><input id="calSearch" type="search" placeholder="일정 검색(제목·메모)" aria-label="일정 검색"></div>
 <div class="cal-legend" id="calLegend"></div>
 <div class="list" id="calResults" hidden></div>
 <div class="cal-grid" id="calGrid"></div>
@@ -79,6 +79,7 @@ const holiday = date => HOLIDAYS[date] || '';
 
 // 사람별 색상(입력한 사람/대상자), 학교, 회색(모두·여럿)
 const PAL = [{ fg: '#b8265f', bg: '#fde7ef', bar: '#e0457b' }, { fg: '#1f5fb8', bg: '#e3eefc', bar: '#2f7de1' }, { fg: '#157a52', bg: '#def5ea', bar: '#1f9d6b' }, { fg: '#a86400', bg: '#fff0d6', bar: '#e0a000' }];
+const ALLC = { fg: '#8a4b00', bg: '#fff0d6', bar: '#e0a000' };
 const GRAY = { fg: '#505874', bg: '#eef0f5', bar: '#9aa1b5' };
 const SCHOOL = { fg: '#4b3fb8', bg: '#efedff', bar: '#6658d3' };
 const cssVars = c => `--bg:${c.bg};--fg:${c.fg};--bar:${c.bar}`;
@@ -87,9 +88,9 @@ let store = null, user = null, me = null, selected = null, unsub = null;
 const fired = new Set();
 let editTask = null, editDraft = { text: '', time: '', repeat: 'daily' };
 let calY = new Date().getFullYear(), calM = new Date().getMonth(), calSel = dayKey(), editingEv = null;
-let calView = 'month', calFilter = 'all', colorBy = lsGet('calColorByV1') === 'who' ? 'who' : 'by';
+let calView = 'month', calFilter = 'all', colorBy = 'who';
 const names = () => (store?.members || []).map(m => m.name);
-const colorOfName = n => { const i = names().indexOf(n); return i >= 0 ? PAL[i % PAL.length] : GRAY; };
+const colorOfName = n => { if (n === '모두') return ALLC; const i = names().indexOf(n); return i >= 0 ? PAL[i % 3] : GRAY; };
 
 // ---------- 로그인 ----------
 $('loginBtn').onclick = async () => {
@@ -216,8 +217,7 @@ const REPEATS = { none: '', daily: '매일', weekdays: '평일', weekly: '매주
 const LEAD = { default: 0, m10: 10, m30: 30, h1: 60 };
 const whoOf = e => (Array.isArray(e.who) && e.who.length) ? e.who : ['모두'];
 function evColor(e) {
-  if (colorBy === 'who') { const w = whoOf(e); return (w.length === 1 && w[0] !== '모두') ? colorOfName(w[0]) : GRAY; }
-  return colorOfName(e.by);
+  const w = whoOf(e); return w.length === 1 ? colorOfName(w[0]) : GRAY;
 }
 const passFilter = e => calFilter === 'all' || whoOf(e).includes('모두') || whoOf(e).includes(calFilter);
 
@@ -259,7 +259,7 @@ function gcalUrl(g) {
 }
 function buildWho(sel) {
   const box = $('evWho'), all = ['모두', ...names()];
-  box.innerHTML = '<span class="who-label">대상</span>' + all.map(n => `<label class="who-opt"><input type="checkbox" value="${esc(n)}" ${sel.includes(n) ? 'checked' : ''}>${esc(n)}</label>`).join('');
+  box.innerHTML = '<span class="who-label">대상(색 구분)</span>' + all.map(n => `<label class="who-opt"><input type="checkbox" value="${esc(n)}" ${sel.includes(n) ? 'checked' : ''}><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${colorOfName(n).bar}"></i>${esc(n)}</label>`).join('');
   box.dataset.sig = names().join('|');
   const boxes = () => [...box.querySelectorAll('input')];
   boxes().forEach(cb => cb.onchange = () => {
@@ -273,11 +273,11 @@ const getWho = () => [...$('evWho').querySelectorAll('input:checked')].map(b => 
 function syncCalControls() {
   const sig = names().join('|'), f = $('calFilter');
   if (f.dataset.sig !== sig) { f.innerHTML = '<option value="all">전체 일정</option>' + names().map(n => `<option value="${esc(n)}">${esc(n)} 일정(모두 포함)</option>`).join(''); f.dataset.sig = sig; if (calFilter !== 'all' && !names().includes(calFilter)) calFilter = 'all'; }
-  f.value = calFilter; $('calColorBy').value = colorBy;
+  f.value = calFilter; 
   $('viewMonth').classList.toggle('on', calView === 'month'); $('viewList').classList.toggle('on', calView === 'list');
   $('calPrev').disabled = $('calNext').disabled = calView !== 'month';
   const lg = (bar, label) => `<span class="lg"><i style="background:${bar}"></i>${esc(label)}</span>`;
-  $('calLegend').innerHTML = (colorBy === 'by' ? '<span class="lg-title">입력한 사람</span>' + names().map(n => lg(colorOfName(n).bar, n)).join('') : '<span class="lg-title">대상자</span>' + names().map(n => lg(colorOfName(n).bar, n)).join('') + lg(GRAY.bar, '모두·여럿')) + lg(SCHOOL.bar, '학교') + '<span class="lg"><b class="hol-sample">빨간 글씨</b> 공휴일</span>';
+  $('calLegend').innerHTML = ('<span class="lg-title">대상자 색</span>' + lg(ALLC.bar, '모두') + names().map(n => lg(colorOfName(n).bar, n)).join('') + lg(GRAY.bar, '여럿 선택')) + lg(SCHOOL.bar, '학교') + '<span class="lg"><b class="hol-sample">빨간 글씨</b> 공휴일</span>';
   if ($('evWho').dataset.sig !== sig && !editingEv) buildWho(['모두']);
 }
 function renderCalendar() {
@@ -367,7 +367,7 @@ $('calToday').onclick = () => { const n = new Date(); calY = n.getFullYear(); ca
 $('viewMonth').onclick = () => { calView = 'month'; renderCalendar(); };
 $('viewList').onclick = () => { calView = 'list'; renderCalendar(); };
 $('calFilter').onchange = e => { calFilter = e.target.value; renderCalendar(); };
-$('calColorBy').onchange = e => { colorBy = e.target.value; lsSet('calColorByV1', colorBy); renderCalendar(); };
+
 $('calSearch').oninput = () => renderCalendar();
 $('calSearch').onkeydown = e => { if (e.key === 'Escape') { e.target.value = ''; renderCalendar(); } };
 $('evRepeat').onchange = syncRepeatFields;
