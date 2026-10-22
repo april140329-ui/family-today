@@ -47,7 +47,7 @@ onAuthStateChanged(auth, u => {
   user = u; if (unsub) { unsub(); unsub = null; }
   if (!u) { store = null; $('app').classList.add('hidden'); $('gate').classList.remove('hidden'); $('gateMsg').textContent = '가족 구글 계정으로 로그인하면 함께 쓰는 할 일을 볼 수 있어요.'; return; }
   $('gateMsg').textContent = '불러오는 중…';
-  unsub = onSnapshot(ref, snap => {
+  unsub = onSnapshot(ref, { includeMetadataChanges: true }, snap => {
     if (!snap.exists()) { $('gateMsg').textContent = '아직 가족 데이터가 준비되지 않았어요.'; return; }
     store = snap.data();
     me = (store.members || []).find(m => (m.email || '').toLowerCase() === (u.email || '').toLowerCase()) || null;
