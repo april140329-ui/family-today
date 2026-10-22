@@ -11,10 +11,10 @@
 <div id="app" class="hidden">
 <header class="top"><div><h1>우리 가족 오늘 할 일</h1><div class="date" id="today"></div></div><div class="top-actions"><span class="who" id="who"></span><button class="btn" id="notify">알림 켜기</button><button class="btn small" id="logout">로그아웃</button></div></header>
 <section class="card memo" id="schoolMemo"><div class="headrow"><h2>오늘 메모 · 학교 알림(초2)</h2><span class="count">하이클래스 2-3반·학교 공지 기준</span></div><div class="list" id="memoList"></div><div class="chart-note">지난 일정은 자동으로 숨겨져요. 신청 링크·세부 내용은 하이클래스 원문에서 확인하세요.</div></section>
-<section class="card cal" id="calCard"><div class="headrow"><h2>월 캘린더</h2><div class="cal-nav"><button class="btn small" id="calPrev" type="button" aria-label="이전 달">◀</button><b id="calTitle"></b><button class="btn small" id="calNext" type="button" aria-label="다음 달">▶</button><button class="btn small" id="calToday" type="button">오늘</button></div></div><div class="cal-legend"><span class="badge t-school">학교</span><span class="badge t-trip">가족여행</span><span class="badge t-imp">중요</span><span class="badge t-etc">일정</span></div><div class="cal-grid" id="calGrid"></div><div class="day-box"><h3 id="dayTitle"></h3><div class="list" id="dayList"></div><form class="ev-form" id="evForm"><input class="ev-title" id="evTitle" placeholder="이 날 일정이나 중요한 일을 적어주세요" maxlength="80" required><select id="evType" aria-label="종류"><option value="important">중요</option><option value="trip">가족여행</option><option value="etc">일정</option></select><label class="ev-end">종료일(여러 날일 때) <input id="evEnd" type="date"></label><input class="ev-note" id="evNote" placeholder="메모(선택)" maxlength="200"><button class="btn primary" type="submit">추가</button></form></div></section>
+<section class="card cal" id="calCard"><div class="headrow"><h2>월 캘린더</h2><div class="cal-nav"><button class="btn small" id="calPrev" type="button" aria-label="이전 달">◀</button><b id="calTitle"></b><button class="btn small" id="calNext" type="button" aria-label="다음 달">▶</button><button class="btn small" id="calToday" type="button">오늘</button></div></div><div class="cal-legend"><span class="badge t-school">학교</span><span class="badge t-trip">가족여행</span><span class="badge t-imp">중요</span><span class="badge t-etc">일정</span></div><div class="cal-grid" id="calGrid"></div><div class="day-box"><h3 id="dayTitle"></h3><div class="list" id="dayList"></div><form class="ev-form" id="evForm"><input class="ev-title" id="evTitle" placeholder="이 날 일정이나 중요한 일을 적어주세요" maxlength="80" required><select id="evType" aria-label="종류"><option value="important">중요</option><option value="trip">가족여행</option><option value="etc">일정</option></select><label class="ev-end">종료일(여러 날일 때) <input id="evEnd" type="date"></label><label class="ev-end">시간(선택) <input id="evTime" type="time"></label><select id="evAlert" aria-label="알림"><option value="default">알림: 전날 저녁·당일 아침</option><option value="none">알림 없음</option></select><input class="ev-note" id="evNote" placeholder="메모(선택)" maxlength="200"><button class="btn primary" type="submit">추가</button></form></div></section>
 <div class="members" id="members"></div>
 <div class="grid"><section class="card"><div class="headrow"><h2 id="memberTitle"></h2><span class="count" id="count"></span></div><form class="add" id="form"><input id="taskText" placeholder="할 일을 적어주세요" maxlength="120" required><input id="taskTime" type="time" aria-label="알림 시간"><button class="btn primary" type="submit">추가</button></form><div class="list" id="list"></div></section>
-<aside class="card side"><h3>오늘 진행 상황</h3><div id="progressText" class="tip"></div><div class="progress"><i id="bar"></i></div><div id="progressDetail" class="tip"></div><p class="tip" style="margin-top:18px">알림은 <b>로그인한 본인의 할 일만</b> 이 페이지를 열어둔 동안 브라우저 알림으로 알려드려요.</p><div id="notifyStatus" class="status"></div><div class="sync" id="sync"></div></aside></div>
+<aside class="card side"><h3>오늘 진행 상황</h3><div id="progressText" class="tip"></div><div class="progress"><i id="bar"></i></div><div id="progressDetail" class="tip"></div><p class="tip" style="margin-top:18px">알림은 <b>로그인한 본인의 할 일만</b> 이 페이지를 열어둔 동안 브라우저 알림으로 알려드려요. 캘린더 일정은 전날 저녁 6시와 당일 아침 8시에 가족 모두에게 알려요.</p><div id="notifyStatus" class="status"></div><div class="sync" id="sync"></div></aside></div>
 <section class="card history"><div class="chart-head"><h3>진행 내역</h3><select id="period" aria-label="기간"><option value="7">최근 7일</option><option value="30">최근 30일</option></select></div><div id="chart" class="chart"></div><div id="chartNote" class="chart-note"></div></section>
 <div class="notice"><b>저장·공유 방식</b><br>할 일과 진행 내역은 가족 공용 온라인 저장소에 저장되어, 허용된 가족 구글 계정이면 어느 기기에서든 같은 내용을 실시간으로 볼 수 있어요. 문자(SMS)와 휴대폰/워치 푸시 알림은 아직 지원하지 않아요.</div>
 </div>
@@ -123,7 +123,7 @@ function itemsOn(date) {
   for (const n of (store?.schoolNotes || [])) if (n.start === date) out.push({ kind: 'school', cls: 't-school', label: '학교', title: n.title, sub: n.sub || '' });
   for (const [id, e] of Object.entries(store?.events || {})) {
     const end = e.endDate && e.endDate >= e.date ? e.endDate : e.date;
-    if (e.date <= date && date <= end) { const t = TYPES[e.type] || TYPES.etc; out.push({ kind: 'event', id, cls: t.cls, label: t.label, title: e.title, sub: e.note || '', by: e.by || '', range: end !== e.date ? `${e.date.slice(5).replace('-', '/')}~${end.slice(5).replace('-', '/')}` : '' }); }
+    if (e.date <= date && date <= end) { const t = TYPES[e.type] || TYPES.etc; out.push({ kind: 'event', id, cls: t.cls, label: t.label, title: e.title, sub: e.note || '', time: e.time || '', alertOff: e.alert === 'none', by: e.by || '', range: end !== e.date ? `${e.date.slice(5).replace('-', '/')}~${end.slice(5).replace('-', '/')}` : '' }); }
   }
   return out;
 }
@@ -144,7 +144,7 @@ function renderCalendar() {
 function renderDay() {
   const its = itemsOn(calSel);
   $('dayTitle').textContent = new Date(calSel + 'T00:00:00').toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' });
-  $('dayList').innerHTML = its.length ? its.map(x => `<div class="day-item"><span class="badge ${x.cls}">${x.label}</span><div><div class="memo-title">${esc(x.title)}${x.range ? ` <span class="tag">${esc(x.range)}</span>` : ''}</div>${x.sub ? `<div class="memo-sub">${esc(x.sub)}</div>` : ''}${x.by ? `<div class="memo-sub">입력: ${esc(x.by)}</div>` : ''}</div>${x.kind === 'event' ? `<button class="del" title="삭제" data-evdel="${esc(x.id)}">×</button>` : '<span></span>'}</div>`).join('') : '<div class="empty" style="padding:14px">이 날은 등록된 일정이 없어요. 아래에서 추가해 보세요.</div>';
+  $('dayList').innerHTML = its.length ? its.map(x => `<div class="day-item"><span class="badge ${x.cls}">${x.label}</span><div><div class="memo-title">${esc(x.title)}${x.range ? ` <span class="tag">${esc(x.range)}</span>` : ''}${x.time ? ` <span class="tag">${esc(x.time)}</span>` : ''}${x.alertOff ? ' <span class="tag">알림 없음</span>' : ''}</div>${x.sub ? `<div class="memo-sub">${esc(x.sub)}</div>` : ''}${x.by ? `<div class="memo-sub">입력: ${esc(x.by)}</div>` : ''}</div>${x.kind === 'event' ? `<button class="del" title="삭제" data-evdel="${esc(x.id)}">×</button>` : '<span></span>'}</div>`).join('') : '<div class="empty" style="padding:14px">이 날은 등록된 일정이 없어요. 아래에서 추가해 보세요.</div>';
   $('dayList').querySelectorAll('[data-evdel]').forEach(b => b.onclick = async () => { if (confirm('이 일정을 삭제할까요?')) await updateDoc(ref, new FieldPath('events', b.dataset.evdel), deleteField()); });
   $('evEnd').min = calSel;
 }
@@ -155,8 +155,8 @@ $('evForm').onsubmit = async e => {
   e.preventDefault(); if (!store) return;
   const title = $('evTitle').value.trim(); if (!title) return;
   const end = $('evEnd').value, id = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-  const ev = { date: calSel, endDate: end && end > calSel ? end : '', title, type: $('evType').value, note: $('evNote').value.trim(), by: me?.name || user?.email || '' };
-  $('evTitle').value = ''; $('evNote').value = ''; $('evEnd').value = '';
+  const ev = { date: calSel, endDate: end && end > calSel ? end : '', title, type: $('evType').value, note: $('evNote').value.trim(), time: $('evTime').value || '', alert: $('evAlert').value, by: me?.name || user?.email || '' };
+  $('evTitle').value = ''; $('evNote').value = ''; $('evEnd').value = ''; $('evTime').value = ''; $('evAlert').value = 'default';
   await updateDoc(ref, new FieldPath('events', id), ev);
 };
 $('period').onchange = () => store && renderChart();
@@ -170,15 +170,37 @@ $('form').onsubmit = e => {
 $('notify').onclick = async () => {
   if (!('Notification' in window)) { $('notifyStatus').textContent = '이 브라우저는 알림을 지원하지 않아요.'; return; }
   const p = await Notification.requestPermission();
-  $('notifyStatus').textContent = p === 'granted' ? `알림이 허용됐어요. ${me ? me.name + '님의' : '본인'} 할 일만 지정한 시간에 알려드릴게요.` : '알림 권한이 허용되지 않았어요.';
+  $('notifyStatus').textContent = p === 'granted' ? `알림이 허용됐어요. ${me ? me.name + '님의' : '본인'} 할 일은 지정한 시간에, 캘린더 일정은 전날 저녁 6시와 당일 아침 8시에 알려드릴게요.` : '알림 권한이 허용되지 않았어요.';
 };
+// 캘린더 알림: 학교 일정·가족 일정을 가족 모두에게 알립니다(전날 18:00 이후, 당일 08:00~18:00, 시간 지정 일정은 해당 시각).
+function calAlerts(now = new Date()) {
+  if (!store || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const today = now.toLocaleDateString('sv-SE'), hm = now.toTimeString().slice(0, 5);
+  const nx = new Date(now); nx.setDate(nx.getDate() + 1); const tomorrow = nx.toLocaleDateString('sv-SE');
+  const starting = date => {
+    const out = [];
+    for (const n of (store.schoolNotes || [])) if (n.start === date) out.push({ title: n.title, time: '' });
+    for (const [id, e] of Object.entries(store.events || {})) if (e.date === date && e.alert !== 'none') out.push({ id, title: e.title, time: e.time || '' });
+    return out;
+  };
+  let fs; try { fs = JSON.parse(localStorage.getItem('calFiredV1') || 'null'); } catch { fs = null; }
+  if (!fs || fs.day !== today) fs = { day: today, keys: [] };
+  const once = (key, title, body) => { if (fs.keys.includes(key)) return; fs.keys.push(key); try { localStorage.setItem('calFiredV1', JSON.stringify(fs)); } catch {} new Notification(title, { body, tag: key }); };
+  const sum = list => list.slice(0, 3).map(x => '• ' + x.title).join('\n') + (list.length > 3 ? `\n외 ${list.length - 3}건` : '');
+  const tdy = starting(today), tmr = starting(tomorrow);
+  if (tdy.length && hm >= '08:00' && hm < '18:00') once(`d-${today}`, `오늘 일정 ${tdy.length}건`, sum(tdy));
+  if (tmr.length && hm >= '18:00') once(`n-${tomorrow}`, `내일 일정 ${tmr.length}건`, sum(tmr));
+  const mins = s => Number(s.slice(0, 2)) * 60 + Number(s.slice(3, 5));
+  for (const x of tdy) if (x.id && x.time) { const diff = mins(hm) - mins(x.time); if (diff >= 0 && diff <= 10) once(`t-${today}-${x.id}`, `지금 일정: ${x.title}`, `${x.time} 일정이에요.`); }
+}
+window.__calAlerts = calAlerts;
 // 알림: 로그인한 본인(me)의 할 일만 확인합니다.
 function check() {
   if (!store || !me || !('Notification' in window) || Notification.permission !== 'granted') return;
   const hm = new Date().toTimeString().slice(0, 5);
   for (const t of (store.tasks?.[me.name] || [])) { const key = `${dayKey()}-${me.name}-${t.id}`; if (t.time === hm && !t.done && !fired.has(key)) { new Notification(`${me.name} 할 일`, { body: t.text, tag: key }); fired.add(key); } }
 }
-setInterval(check, 15000);
+setInterval(() => { check(); calAlerts(); }, 15000);
 setInterval(() => { if (store) { rollover(); render(); } }, 60000);
 // 학교 메모 자동 갱신용(가족 계정 로그인 상태에서만 동작, 보안 규칙으로 보호됨). 할 일·진행내역은 건드리지 않습니다.
 window.__getSchoolNotes = () => JSON.parse(JSON.stringify(store?.schoolNotes || []));
