@@ -41,7 +41,7 @@
 <div class="grid"><section class="card"><div class="headrow"><h2 id="memberTitle"></h2><span class="count" id="count"></span></div><details class="acc" id="taskAcc"><summary>+ 할 일 추가</summary><div class="acc-body"><form class="add" id="form"><input id="taskText" placeholder="할 일을 적어주세요" maxlength="120" required><input id="taskTime" type="time" aria-label="알림 시간"><select id="taskRepeat" aria-label="반복"><option value="daily">매일</option><option value="weekdays">평일만</option><option value="weekend">주말만</option><option value="once">오늘만</option></select><button class="btn primary" type="submit">추가</button></form></div></details><div class="list" id="list"></div></section>
 </div>
 
-<div class="notice"><b>저장·공유 방식</b><br>할 일과 진행 내역은 가족 공용 온라인 저장소에 저장되어, 허용된 가족 구글 계정이면 어느 기기에서든 같은 내용을 실시간으로 볼 수 있어요. 문자(SMS)와 휴대폰/워치 푸시 알림은 아직 지원하지 않아요.</div>
+<div class="notice"><b>저장·공유</b><br>할 일·캘린더·가족 메모는 허용된 가족 Google 계정끼리 Firebase에서 함께 봐요. 사진은 가족 Google Drive 앨범에 보관되며, 앨범 접근은 초대한 가족 계정으로 제한돼요. 브라우저 알림은 페이지가 열려 있을 때 동작해요.</div>
 </div>
 </main>
 <script type="module">
@@ -290,7 +290,7 @@ function renderMonth() {
   for (let i = 0; i < first; i++) html += '<div class="cal-cell empty"></div>';
   for (let d = 1; d <= dim; d++) {
     const date = ymd(calY, calM, d), its = itemsOn(date), dow = (first + d - 1) % 7, h = holiday(date);
-    html += `<button type="button" class="cal-cell${date === today ? ' today' : ''}${date === calSel ? ' sel' : ''}" data-date="${date}"><span class="cal-d${h || dow === 0 ? ' holi' : dow === 6 ? ' sat' : ''}">${d}</span>${h ? `<span class="hol">${esc(h)}</span>` : ''}<span class="chips">${its.slice(0, 3).map(x => `<span class="chip" style="${cssVars(x.c)}" title="${esc(x.title)}">${esc(x.title)}</span>`).join('')}${its.length > 3 ? `<span class="more">+${its.length - 3}</span>` : ''}</span></button>`;
+    html += `<button type="button" class="cal-cell${date === today ? ' today' : ''}${date === calSel ? ' sel' : ''}" data-date="${date}"><span class="cal-d${h || dow === 0 ? ' holi' : dow === 6 ? ' sat' : ''}">${d}</span>${h ? `<span class="hol">${esc(h)}</span>` : ''}<span class="chips">${its.slice(0, 3).map(x => `<span class="chip" style="${cssVars(x.c)}" title="${esc(x.label + ' · ' + x.title)}">${esc(x.label)} · ${esc(x.title)}</span>`).join('')}${its.length > 3 ? `<span class="more">+${its.length - 3}</span>` : ''}</span></button>`;
   }
   const el = $('calGrid'); el.innerHTML = html;
   el.querySelectorAll('.cal-cell[data-date]').forEach(b => b.onclick = () => gotoDate(b.dataset.date, false));
