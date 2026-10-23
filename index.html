@@ -35,6 +35,8 @@ html.watch-mode .dashboard-section>summary{display:flex;min-height:44px;padding:
 
 /* Month grid with selected-day details below */
 .cal-grid[hidden],.cal-agenda[hidden],#calAgenda[hidden]{display:none!important}.cal-cell{touch-action:manipulation}.cal-cell.sel{outline:2px solid #3b806b;outline-offset:-2px;background:#e5f2e9}.day-box{margin-top:14px;border-top:1px solid #dce7df;padding-top:12px}.day-box h3{color:#345f50}.cal-grid .cal-dow{font-weight:750}html.watch-mode .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}html.watch-mode .cal-cell{min-width:0;min-height:34px;padding:3px 1px;border-radius:6px}html.watch-mode .cal-d{font-size:11px}html.watch-mode .cal-dow{font-size:10px;padding:5px 0}html.watch-mode .cal-cell .hol{display:none}html.watch-mode .cal-cell .chips{display:flex;gap:2px;justify-content:center;flex-wrap:wrap}html.watch-mode .cal-cell .chip{display:block;width:4px;height:4px;padding:0;font-size:0;border-radius:50%;overflow:hidden;background:var(--bar,#3b806b)}html.watch-mode .cal-cell .more{font-size:8px}html.watch-mode .cal-nav .btn{min-height:36px;padding:5px 7px}html.watch-mode .day-box{margin-top:9px;padding-top:9px}html.watch-mode #dayTitle{font-size:12px}html.watch-mode .day-item{grid-template-columns:auto minmax(0,1fr);overflow-wrap:anywhere}
+
+#selectedDayDetail[hidden],#calAgenda[hidden],.cal-tools .seg[hidden]{display:none!important}
 </style></head>
 <body><main>
 <div class="alarm-banner" id="alarmBanner" hidden role="alert"><div><b id="alarmTitle"></b><div class="alarm-body" id="alarmBody"></div></div><button class="btn small primary" id="alarmClose" type="button">확인</button></div>
@@ -44,12 +46,12 @@ html.watch-mode .dashboard-section>summary{display:flex;min-height:44px;padding:
 <details class="acc dashboard-section timetable-section" id="timetableSection"><summary><span>아이 시간표</span><span class="section-hint" id="timetableHint">오늘 시간표</span></summary><div class="acc-body"><div class="headrow"><h2>오늘 시간표</h2><span class="count" id="todayTimetableCount"></span></div><div id="todayTimetable" class="timetable-list"></div><details class="acc" id="weekTimetableAcc"><summary>월~금 시간표 펼치기</summary><div class="acc-body"><div id="weekTimetable" class="week-timetable"></div></div></details></div></details>
 <details class="acc dashboard-section"><summary><span>학교 알림</span><span class="section-hint"></span></summary><div class="acc-body"><div class="headrow"><h2>오늘 메모 · 학교 알림(초2)</h2><span class="count">하이클래스 2-3반·학교 공지 기준</span></div><div class="list" id="memoList"></div><div class="chart-note">지난 일정은 자동으로 숨겨져요. 신청 링크·세부 내용은 하이클래스 원문에서 확인하세요.</div></div></details>
 <details class="acc dashboard-section"><summary><span>가족 캘린더</span><span class="section-hint">학교 · 학원 · 병원 · 여행</span><span class="section-hint"></span></summary><div class="acc-body"><div class="headrow"><h2>가족 캘린더</h2><div class="cal-nav"><button class="btn small" id="calPrev" type="button" aria-label="이전 달">◀</button><b id="calTitle"></b><button class="btn small" id="calNext" type="button" aria-label="다음 달">▶</button><button class="btn small" id="calToday" type="button">오늘</button></div></div>
-<div class="cal-tools"><div class="seg"><button class="seg-btn on" id="viewMonth" type="button">월간</button><button class="seg-btn" id="viewList" type="button">목록</button></div><select id="calFilter" aria-label="사람별 보기"></select><select id="calColorBy" hidden></select><input id="calSearch" type="search" placeholder="일정 검색(제목·메모)" aria-label="일정 검색"></div>
+<div class="cal-tools"><div class="seg" hidden><button class="seg-btn on" id="viewMonth" type="button">월간</button><button class="seg-btn" id="viewList" type="button">목록</button></div><select id="calFilter" aria-label="사람별 보기"></select><select id="calColorBy" hidden></select><input id="calSearch" type="search" placeholder="일정 검색(제목·메모)" aria-label="일정 검색"></div>
 <div class="cal-legend" id="calLegend"></div>
 <div class="list" id="calResults" hidden></div>
 <div class="cal-grid" id="calGrid"></div>
 <div class="list" id="calAgenda" hidden></div>
-<div class="day-box"><h3 id="dayTitle"></h3><div class="list" id="dayList"></div>
+<div class="day-box" id="selectedDayDetail" hidden><h3 id="dayTitle"></h3><div class="list" id="dayList"></div>
 <details class="acc" id="evAcc"><summary>+ 일정 추가 <span id="evAccDate"></span></summary><div class="acc-body"><form class="ev-form" id="evForm"><div class="ev-mode" id="evMode" hidden>일정 수정 중</div><input class="ev-title" id="evTitle" placeholder="이 날 일정이나 중요한 일을 적어주세요" maxlength="80" required><select id="evType" aria-label="종류"><option value="important">중요</option><option value="hospital">병원</option><option value="academy">학원</option><option value="school">학교</option><option value="trip">가족여행</option><option value="etc">일정</option></select><div class="ev-who" id="evWho"></div><label class="ev-end">날짜 <input id="evStart" type="date" required></label><label class="ev-end">종료일(여러 날일 때) <input id="evEnd" type="date"></label><label class="ev-end">시간(선택) <input id="evTime" type="time"></label><label class="ev-end">반복 <select id="evRepeat" aria-label="반복"><option value="none">반복 안 함</option><option value="daily">매일</option><option value="weekdays">평일(월~금)</option><option value="weekly">매주</option><option value="monthly">매월</option></select></label><label class="ev-end">반복 종료일(선택) <input id="evUntil" type="date" disabled></label><select id="evAlert" aria-label="알림"><option value="default">알림: 기본(전날 저녁·당일 아침, 시간 있으면 정시)</option><option value="m10">알림: 기본 + 시간 10분 전</option><option value="m30">알림: 기본 + 시간 30분 전</option><option value="h1">알림: 기본 + 시간 1시간 전</option><option value="none">알림 없음</option></select><input class="ev-note" id="evNote" placeholder="메모(선택)" maxlength="200"><button class="btn primary" type="submit" id="evSubmit">추가</button><button class="btn" type="button" id="evCancel" hidden>취소</button></form></div></details></div></div></details>
 <details class="acc dashboard-section"><summary><span>가족 메모</span><span class="section-hint">가족이 함께 보는 메모</span></summary><div class="acc-body"><div class="headrow"><h2>가족 메모</h2><span class="count">가족이 함께 보는 메모</span></div><div id="familyNotesList" class="list"></div><form id="familyNoteForm" class="family-note-form"><input id="familyNoteText" maxlength="200" placeholder="가족에게 남길 메모를 적어주세요" required><button class="btn primary" type="submit">메모 추가</button></form></div></details>
 <section class="card album-card"><div><h2 style="margin:0">우리 가족 사진앨범</h2><p>사진은 네 Google Drive에 저장해요. 용량이 부족하면 더 이상 올리지 않고, 유료 전환은 하지 않아요.</p></div><a class="btn primary" href="https://drive.google.com/drive/folders/1wWPvHDzXwpq09x3CKwr4lLKawLRFog39" target="_blank" rel="noopener">앨범 열기</a></section>
@@ -110,6 +112,7 @@ let store = null, user = null, me = null, selected = null, unsub = null;
 const fired = new Set();
 let editTask = null, editDraft = { text: '', time: '', repeat: 'daily' };
 let calY = new Date().getFullYear(), calM = new Date().getMonth(), calSel = dayKey(), editingEv = null;
+let calDayPicked = false;
 let calView = 'month', calFilter = 'all', colorBy = 'who';
 const names = () => (store?.members || []).map(m => m.name);
 const colorOfName = n => { if (n === '모두') return ALLC; const i = names().indexOf(n); return i >= 0 ? PAL[i % 3] : GRAY; };
@@ -317,14 +320,19 @@ function syncCalControls() {
 }
 function renderCalendar() {
   if (!store) return;
+  calView = 'month';
   syncCalControls();
   const q = $('calSearch').value.trim();
   $('calResults').hidden = !q;
   if (q) renderResults(q);
-  $('calGrid').hidden = calView !== 'month'; $('calAgenda').hidden = calView !== 'list';
-  if (calView === 'month') renderMonth(); else { $('calTitle').textContent = '앞으로 30일'; renderAgenda(); }
-  renderDay();
+  $('calGrid').hidden = false;
+  $('calAgenda').hidden = true;
+  $('calAgenda').innerHTML = '';
+  renderMonth();
+  $('selectedDayDetail').hidden = !calDayPicked;
+  if (calDayPicked) renderDay();
 }
+
 function renderMonth() {
   $('calTitle').textContent = `${calY}년 ${calM + 1}월`;
   const first = new Date(calY, calM, 1).getDay(), dim = new Date(calY, calM + 1, 0).getDate(), today = dayKey();
@@ -332,7 +340,7 @@ function renderMonth() {
   for (let i = 0; i < first; i++) html += '<div class="cal-cell empty"></div>';
   for (let d = 1; d <= dim; d++) {
     const date = ymd(calY, calM, d), its = itemsOn(date), dow = (first + d - 1) % 7, h = holiday(date);
-    html += `<button type="button" class="cal-cell${date === today ? ' today' : ''}${date === calSel ? ' sel' : ''}" data-date="${date}"><span class="cal-d${h || dow === 0 ? ' holi' : dow === 6 ? ' sat' : ''}">${d}</span>${h ? `<span class="hol">${esc(h)}</span>` : ''}<span class="chips">${its.slice(0, 3).map(x => `<span class="chip" style="${cssVars(x.c)}" title="${esc(x.label + ' · ' + x.title)}">${esc(x.label)} · ${esc(x.title)}</span>`).join('')}${its.length > 3 ? `<span class="more">+${its.length - 3}</span>` : ''}</span></button>`;
+    html += `<button type="button" class="cal-cell${date === today ? ' today' : ''}${calDayPicked && date === calSel ? ' sel' : ''}" data-date="${date}"><span class="cal-d${h || dow === 0 ? ' holi' : dow === 6 ? ' sat' : ''}">${d}</span>${h ? `<span class="hol">${esc(h)}</span>` : ''}<span class="chips">${its.slice(0, 3).map(x => `<span class="chip" style="${cssVars(x.c)}" title="${esc(x.label + ' · ' + x.title)}">${esc(x.label)} · ${esc(x.title)}</span>`).join('')}${its.length > 3 ? `<span class="more">+${its.length - 3}</span>` : ''}</span></button>`;
   }
   const el = $('calGrid'); el.innerHTML = html;
   el.querySelectorAll('.cal-cell[data-date]').forEach(b => b.onclick = () => gotoDate(b.dataset.date, false));
@@ -362,6 +370,7 @@ function renderResults(q) {
   el.querySelectorAll('[data-jump]').forEach(r => r.onclick = () => { $('calSearch').value = ''; gotoDate(r.dataset.jump, true); });
 }
 function gotoDate(date, fromSearch) {
+  calDayPicked = true;
   calSel = date; calY = Number(date.slice(0, 4)); calM = Number(date.slice(5, 7)) - 1;
   if (fromSearch || calView === 'month') calView = 'month';
   if (!editingEv) $('evStart').value = date;
@@ -398,7 +407,7 @@ function startEvEdit(id) {
 }
 $('calPrev').onclick = () => { calM--; if (calM < 0) { calM = 11; calY--; } renderCalendar(); };
 $('calNext').onclick = () => { calM++; if (calM > 11) { calM = 0; calY++; } renderCalendar(); };
-$('calToday').onclick = () => { const n = new Date(); calY = n.getFullYear(); calM = n.getMonth(); calSel = dayKey(); if (!editingEv) $('evStart').value = calSel; renderCalendar(); };
+$('calToday').onclick = () => { calDayPicked = false; const n = new Date(); calY = n.getFullYear(); calM = n.getMonth(); calSel = dayKey(); if (!editingEv) $('evStart').value = calSel; renderCalendar(); };
 $('viewMonth').onclick = () => { calView = 'month'; renderCalendar(); };
 $('viewList').onclick = () => { calView = 'list'; renderCalendar(); };
 $('calFilter').onchange = e => { calFilter = e.target.value; renderCalendar(); };
