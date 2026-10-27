@@ -30,5 +30,33 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "아이 시간표",
+      "short_name": "시간표",
+      "description": "오늘 아이 시간표를 바로 열어요",
+      "url": "/family-today/?shortcut=timetable",
+      "icons": [
+        {
+          "src": "/family-today/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "가족 캘린더",
+      "short_name": "캘린더",
+      "description": "가족 캘린더를 바로 열어요",
+      "url": "/family-today/?shortcut=calendar",
+      "icons": [
+        {
+          "src": "/family-today/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }
