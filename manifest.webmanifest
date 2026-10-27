@@ -4,7 +4,7 @@
   "short_name": "가족 달력",
   "description": "가족 일정과 할 일을 함께 관리하는 가족 캘린더",
   "lang": "ko-KR",
-  "start_url": "/family-today/?source=android-app",
+  "start_url": "/family-today/?source=android-app&v=2",
   "scope": "/family-today/",
   "display": "standalone",
   "orientation": "portrait-primary",

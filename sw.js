@@ -1,5 +1,5 @@
 // 우리 가족 작은 탐험대 Android PWA + 알림 클릭 처리
-const CACHE_NAME='family-today-shell-v1';
+const CACHE_NAME='family-today-shell-v2';
 const SHELL_URL=new URL('./',self.location).href;
 const APP_SHELL=[SHELL_URL,'./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./apple-touch-icon.png'].map(path=>new URL(path,self.location).href);
 self.addEventListener('install',event=>{
@@ -17,7 +17,7 @@ self.addEventListener('fetch',event=>{
   const url=new URL(request.url);
   if(url.origin!==self.location.origin)return;
   if(request.mode==='navigate'){
-    event.respondWith(fetch(request).then(response=>{
+    event.respondWith(fetch(request,{cache:'no-store'}).then(response=>{
       if(response.ok){const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(SHELL_URL,copy));}
       return response;
     }).catch(()=>caches.match(SHELL_URL).then(response=>response||Response.error())));

@@ -564,7 +564,7 @@ if(installBtn){if(window.matchMedia('(display-mode: standalone)').matches)instal
 // 구성: (1) 화면이 열려 있으면 알림 배너 + 소리 + 진동, (2) 알림 권한이 있으면 시스템 알림창(서비스워커, 기기 알림음·진동).
 // 사이트가 완전히 닫혀 있거나 휴대폰 화면이 꺼져 브라우저가 멈추면 이 사이트만으로는 알림을 보낼 수 없어요(구글캘린더 연동 권장).
 let swReg = null, actx = null;
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').then(r => { swReg = r; updateDiag(); }).catch(() => updateDiag());
+if ('serviceWorker' in navigator) { navigator.serviceWorker.addEventListener('controllerchange',()=>{if(window.__familySwReloading)return;window.__familySwReloading=true;location.reload();}); navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(r=>{swReg=r;updateDiag();r.update().catch(()=>{});}).catch(()=>updateDiag()); }
 function unlockAudio() { try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume().then(updateDiag); else updateDiag(); } catch {} }
 ['pointerdown', 'touchstart', 'keydown', 'click'].forEach(ev => document.addEventListener(ev, unlockAudio, { passive: true }));
 function beep() {
