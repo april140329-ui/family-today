@@ -327,7 +327,7 @@ function occurs(e, date) {
 function nextOcc(e, from) { for (let k = 0; k <= 400; k++) { const d = addDays(from, k); if (occurs(e, d)) return d; } return null; }
 function itemsOn(date) {
   const out = [];
-  for (const n of (store?.schoolNotes || [])) if (n.start === date) out.push({ kind: 'school', c: SCHOOL, label: '학교', title: n.title, sub: n.sub || '', link: n.link || '', g: { title: n.title, date: n.start, note: n.sub || '' } });
+  for (const n of (store?.schoolNotes || [])) if (n.start <= date && (n.end || n.start) >= date) out.push({ kind: 'school', c: SCHOOL, label: '학교', title: n.title, sub: n.sub || '', link: n.link || '', g: { title: n.title, date, note: n.sub || '', link: n.link || '' } });
   for (const [id, e] of Object.entries(store?.events || {})) {
     if (!occurs(e, date) || !passFilter(e)) continue;
     const rep = e.repeat || 'none', end = e.endDate && e.endDate >= e.date ? e.endDate : e.date;
