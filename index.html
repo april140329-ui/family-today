@@ -494,7 +494,7 @@ function renderAgenda() {
 function renderResults(q) {
   const ql = q.toLowerCase(), rows = [];
   for (const n of (store.schoolNotes || [])) if (`${n.title} ${n.sub || ''}`.toLowerCase().includes(ql)) rows.push({ date: n.start, label: '학교', c: SCHOOL, title: n.title, sub: n.sub || '', tags: [] });
-  for (const e of Object.values(store.events || {})) {
+  for (const [id, e] of Object.entries(store.events || {})) {
     if (!passFilter(e) || !`${e.title} ${e.note || ''}`.toLowerCase().includes(ql)) continue;
     const rep = e.repeat || 'none'; let date = e.date; if (rep !== 'none') { const nx = nextOcc(e, dayKey()); if (nx) date = nx; }
     rows.push({ id, date, label: (TYPES[e.type] || TYPES.etc).label, c: evColor(e), title: e.title, sub: e.note || '', tags: [REPEATS[rep] ? REPEATS[rep] + ' 반복' : '', `대상 ${whoOf(e).join(', ')}`].filter(Boolean) });
