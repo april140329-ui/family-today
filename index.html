@@ -454,7 +454,7 @@ function renderIntegrated() {
     return `<section class="family-day family-editor-card" style="--tl:${esc(color.bar)}"><b>${esc(n)}${me?.name===n?' (나)':''} 할 일</b><div>${content}${add}</div></section>`;
   }).join('');
   const box=$('integratedFamily');
-  $('evAcc').hidden=familyTaskFilter!=='전체'||past||!!integratedEdit;
+  $('evAcc').hidden=familyTaskFilter!=='전체'||(past&&!editingEv)||!!integratedEdit;
   bindTaskWeekdayPickers(box);
   box.querySelectorAll('[data-integrated-id]').forEach(cb=>cb.onchange=async()=>{const owner=cb.dataset.integratedOwner,t=(store.tasks?.[owner]||[]).find(x=>String(x.id)===cb.dataset.integratedId);if(!t)return;const old=t.done;t.done=cb.checked;try{await saveTasks(owner);render();}catch(e){t.done=old;render();alert('저장하지 못했어요. 연결을 확인해 주세요.');}});
   box.querySelectorAll('[data-task-edit]').forEach(b=>b.onclick=()=>{const owner=b.dataset.owner,t=(store.tasks?.[owner]||[]).find(x=>String(x.id)===b.dataset.taskEdit);if(t){integratedEdit={owner,id:t.id,text:t.text,time:t.time||'',endTime:t.endTime||'',repeat:taskRepeat(t),date:t.date||date,repeatDays:t.repeatDays||[]};renderIntegrated();}});
@@ -528,13 +528,13 @@ function renderDay() {
 function syncRepeatFields() { const none = $('evRepeat').value === 'none'; $('evEnd').disabled = !none; $('evUntil').disabled = none; if (!none) $('evEnd').value = ''; if (none) $('evUntil').value = ''; }
 function resetEvForm() {
   editingEv = null;
-  $('evTitle').value = ''; $('evNote').value = ''; $('evLink').value = ''; $('evEnd').value = ''; $('evTime').value = ''; $('evUntil').value = '';
+  $('evAcc').hidden = familyTaskFilter !== '전체' || calSel < dayKey() || !!integratedEdit; $('evTitle').value = '';  $('evNote').value = ''; $('evLink').value = ''; $('evEnd').value = ''; $('evTime').value = ''; $('evUntil').value = '';
   $('evAlert').value = 'default'; $('evRepeat').value = 'none'; $('evType').value = 'important'; $('evStart').value = calSel;
   $('evSubmit').textContent = '추가'; $('evCancel').hidden = true; $('evMode').hidden = true; syncRepeatFields(); buildWho(['모두']);
 }
 function startEvEdit(id) {
   const e = store.events?.[id]; if (!e) return;
-  editingEv = id;
+  familyTaskFilter = '전체'; integratedEdit = null; editingEv = id; renderIntegrated(); $('evAcc').hidden = false;
   $('evTitle').value = e.title || ''; $('evType').value = e.type || 'etc'; $('evStart').value = e.date; $('evEnd').value = e.endDate || '';
   $('evTime').value = e.time || ''; $('evAlert').value = LEAD[e.alert] !== undefined || e.alert === 'none' ? e.alert : 'default'; $('evNote').value = e.note || ''; $('evLink').value = e.link || ''; 
   $('evRepeat').value = e.repeat || 'none'; $('evUntil').value = e.repeatUntil || '';
