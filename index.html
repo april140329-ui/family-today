@@ -379,7 +379,32 @@ body.v2 .tl-row{margin:0}
 body.v2 .cal-cell.sel{outline:0}
 body.v2 .day-box h3,body.v2 #dayTitle{color:var(--ink)}
 @media(min-width:900px){.cal-side .week-box{order:-1}.cal-side .week-box .up-list{max-height:250px;overflow:auto}}@media(max-width:899px){body.v2 .cal-n{display:none}}
-body.v2 .notice-archive>summary{font-size:14px;padding:11px 13px}@media(max-width:300px){.up-row{grid-template-columns:34px minmax(0,1fr)}.up-day{font-size:10px}[data-gcal-chip]{display:none!important}}@media(min-width:900px){.side-set{border-top:0!important;border-radius:18px!important;padding-top:4px!important;margin-top:8px}}</style></head>
+body.v2 .notice-archive>summary{font-size:14px;padding:11px 13px}@media(max-width:300px){.up-row{grid-template-columns:34px minmax(0,1fr)}.up-day{font-size:10px}[data-gcal-chip]{display:none!important}}.spend-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.spend-sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.spend-sum>div{background:linear-gradient(160deg,#eaf3fd,#fff);border:1px solid var(--line);border-radius:16px;padding:12px}
+.spend-sum small{display:block;font-size:12px;color:var(--muted)}.spend-sum b{font-size:19px;letter-spacing:-.02em}
+.spend-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.sp-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:14px;box-shadow:0 8px 24px rgba(31,78,140,.07);min-width:0}
+.sp-head{display:flex;align-items:center;gap:10px;border-radius:16px;padding:10px 12px;margin-bottom:8px;background:var(--bg,#e8f1fd)}
+.sp-head .ic{width:40px;height:40px;border-radius:12px;background:#fff;display:grid;place-items:center;font-size:22px;flex:none}
+.sp-head b{font-size:16px;flex:1;min-width:0}.sp-head small{display:block;font-size:11px;color:var(--muted);font-weight:600}
+.sp-kv{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:14px}
+.sp-kv span{color:var(--muted)}.sp-kv b{font-size:17px;white-space:nowrap}
+.sp-kv.big b{font-size:21px;color:var(--accent2)}
+.sp-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+.sp-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;padding:12px;background:#f6f9fd;border:1px solid var(--line);border-radius:14px}
+.sp-form label{display:grid;gap:3px;font-size:12px;font-weight:700;color:var(--muted);min-width:0}
+.sp-form label input{width:100%;min-width:0}
+.sp-form .row{grid-column:1/-1;display:flex;gap:8px}
+.sp-log{width:100%;border-collapse:collapse;font-size:13px}
+.sp-log th{background:#e6f0fb;color:#4a6285;font-size:12px;padding:8px;text-align:right}.sp-log th:first-child,.sp-log td:first-child{text-align:left}
+.sp-log td{padding:8px;border-top:1px solid var(--line);text-align:right;white-space:nowrap}
+.sp-log-wrap{border:1px solid var(--line);border-radius:14px;overflow:auto}
+@media(min-width:900px){.spend-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.spend-wide{grid-column:1/-1}}
+@media(max-width:899px){.side button{font-size:10px}.spend-sum b{font-size:15px}}
+@media(max-width:300px){.side button[data-view=spend]{display:none!important}}
+html.watch-mode .side button[data-view=spend]{display:none!important}
+@media(min-width:900px){.side-set{border-top:0!important;border-radius:18px!important;padding-top:4px!important;margin-top:8px}}</style></head>
 <body class="v2"><main>
 <div class="alarm-banner" id="alarmBanner" hidden role="alert"><div><b id="alarmTitle"></b><div class="alarm-body" id="alarmBody"></div></div><button class="btn small primary" id="alarmClose" type="button">확인</button></div>
 <section class="card gate" id="gate"><div class="nature-crew" aria-hidden="true"><span class="nature-friend">🪲</span><span class="nature-friend">🐶</span><span class="nature-friend">🐱</span><span class="nature-friend">🐹</span><span class="nature-friend">🌿</span></div><h1 style="margin-top:18px">우리 가족 작은 탐험대</h1><p id="gateMsg">가족 구글 계정으로 로그인하면 함께 쓰는 할 일과 일정을 볼 수 있어요.</p><button class="btn primary" id="loginBtn">구글로 로그인</button></section>
@@ -392,6 +417,7 @@ body.v2 .notice-archive>summary{font-size:14px;padding:11px 13px}@media(max-widt
 <button type="button" data-view="school"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0112 0v11a2 2 0 01-2 2H8a2 2 0 01-2-2z"/><path d="M9 4V3h6v1M9 13h6M9 13v3h6v-3"/></svg>학교</button>
 <button type="button" data-view="weather"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 01-.5-7.97A6 6 0 0118 9.5a4.2 4.2 0 01-.5 8.5z"/></svg>날씨</button>
 <button type="button" data-view="life"><svg viewBox="0 0 24 24"><path d="M4 7h16l-1.5 9h-13z"/><path d="M8 7l2-4M16 7l-2-4"/><circle cx="9" cy="20" r="1"/><circle cx="16" cy="20" r="1"/></svg>생활</button>
+<button type="button" data-view="spend"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M7 15h4"/></svg>소비</button>
 </nav>
 <button type="button" class="side-set" data-view="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1.3l2-1.5-2-3.4-2.3.9a7 7 0 00-2.2-1.3L14 3h-4l-.4 2.4a7 7 0 00-2.2 1.3l-2.3-.9-2 3.4 2 1.5A7 7 0 005 12c0 .4 0 .9.1 1.3l-2 1.5 2 3.4 2.3-.9a7 7 0 002.2 1.3L10 21h4l.4-2.4a7 7 0 002.2-1.3l2.3.9 2-3.4-2-1.5c.1-.4.1-.9.1-1.3z"/></svg>설정</button>
 </aside>
@@ -453,6 +479,14 @@ body.v2 .notice-archive>summary{font-size:14px;padding:11px 13px}@media(max-widt
 <div id="wxBody"><div class="v-empty">날씨를 불러오는 중…</div></div>
 <div class="wx-foot"><button type="button" class="btn small" id="wxRefresh">날씨 새로고침</button><button type="button" class="btn small" id="wxLocate">현재 위치로 변경</button><button type="button" class="btn small" id="wxResetLoc">기본 위치로</button><a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo · CC BY 4.0</a></div>
 </section></section>
+
+<section class="view" data-view-panel="spend">
+<section class="vcard" style="margin-bottom:12px"><div class="spend-top"><div class="vhead" style="margin:0"><h2>💳 가족 소비 현황</h2></div><span class="sp" style="flex:1"></span><span class="pill" id="spendUpdated">기록 없음</span><button type="button" class="btn small" id="spendMask">금액 보기</button></div>
+<div class="spend-sum"><div><small>오늘 카드 사용</small><b id="spendSumToday">–</b></div><div><small>이번 달 카드 사용</small><b id="spendSumMonth">–</b></div><div><small>결제 예정 합계</small><b id="spendSumDue">–</b></div></div>
+<p class="set-note" style="margin:0">카드사·은행과 자동으로 연결된 화면이 아니에요. 카드 앱에 보이는 금액을 적어 두는 칸이고, 저장하면 로그인한 가족 계정 모두가 볼 수 있어요. 카드번호·계좌번호·비밀번호는 적지 마세요.</p></section>
+<div class="spend-grid" id="spendCards"></div>
+<section class="vcard" style="margin-top:12px"><div class="vhead"><h3>🧾 최근 기록</h3><span class="sp"></span><span class="pill" id="spendLogCount">0일</span></div><div class="sp-log-wrap"><table class="sp-log"><thead><tr><th>날짜</th><th>신한 이번 달</th><th>현대 이번 달</th><th>마이너스통장</th></tr></thead><tbody id="spendLog"></tbody></table></div><p class="set-note">금액을 저장한 날마다 그날 값이 한 줄씩 남아요. 최근 62일까지 보관해요.</p></section>
+</section>
 
 <section class="view" data-view-panel="settings"><div class="set-grid">
 <section class="vcard"><div class="vhead"><h2>🗓️ 구글 캘린더 연결</h2><span class="sp"></span><span class="pill" id="gcalStatePill">꺼짐</span></div>
@@ -1452,10 +1486,69 @@ function gcalBoot() { if (gcalBooted) return; gcalBooted = true; if (lsGet('v2Gc
 setInterval(() => { if (gcalState !== 'ready') return; if (gcalToken()) gcalFetch(); else { gcalState = 'need'; gcalMsg = '연결 시간이 지났어요. 다시 연결을 눌러 주세요.'; gcalEvents = []; if (store) render(); } }, 5 * 60000);
 $('v2Refresh').onclick = () => { loadWeather(true); if (gcalState === 'ready') gcalFetch(); else if (gcalState === 'need') gcalConnect(); };
 
+// ----- 가족 소비 현황(직접 입력 · 자동 갱신용 연결 함수 제공) -----
+const SPEND_ITEMS = [
+  { key: 'shinhan', kind: 'card', label: '신한카드', who: '내 카드', icon: '💳', c: { fg: '#1f5fb8', bg: '#e3eefc', bar: '#2f7de1' } },
+  { key: 'hyundai', kind: 'card', label: '현대카드', who: '남편 카드', icon: '💳', c: { fg: '#3a3f52', bg: '#eceef4', bar: '#6b7288' } },
+  { key: 'loan', kind: 'loan', label: '경남은행 마이너스통장', who: '남편 통장', icon: '🏦', c: { fg: '#157a52', bg: '#def5ea', bar: '#1f9d6b' } }
+];
+const SPEND_FIELDS = { card: [['today', '오늘 사용액'], ['month', '이번 달 사용액'], ['due', '결제 예정 금액']], loan: [['balance', '사용 중인 금액(대출 잔액)'], ['limit', '한도']] };
+var spendShow = false, spendEdit = '';
+const won = v => Number.isFinite(v) ? (spendShow ? Math.round(v).toLocaleString('ko-KR') + '원' : '•••••') : '–';
+const spendItems = () => (store?.spending && typeof store.spending === 'object' && store.spending.items) || {};
+function spendNum(v) { if (v === '' || v === null || v === undefined) return null; const n = Number(String(v).replace(/[,\s원]/g, '')); return Number.isFinite(n) && n >= 0 && n <= 1e11 ? Math.round(n) : NaN; }
+function renderSpending() {
+  if (!$('spendCards') || !store) return;
+  const items = spendItems(), cards = SPEND_ITEMS.filter(s => s.kind === 'card'), sum = f => { const vals = cards.map(s => items[s.key]?.[f]).filter(Number.isFinite); return vals.length ? vals.reduce((a, b) => a + b, 0) : NaN; };
+  $('spendSumToday').textContent = won(sum('today')); $('spendSumMonth').textContent = won(sum('month')); $('spendSumDue').textContent = won(sum('due'));
+  $('spendMask').textContent = spendShow ? '금액 가리기' : '금액 보기';
+  const latest = SPEND_ITEMS.map(s => items[s.key]?.updatedAt || 0).reduce((a, b) => Math.max(a, b), 0);
+  $('spendUpdated').textContent = latest ? '마지막 입력 ' + new Date(latest).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '기록 없음';
+  $('spendCards').innerHTML = SPEND_ITEMS.map(s => {
+    const it = items[s.key] || {}, editing = spendEdit === s.key;
+    const rows = s.kind === 'card'
+      ? `<div class="sp-kv"><span>오늘 사용</span><b>${won(it.today)}</b></div><div class="sp-kv"><span>이번 달 사용</span><b>${won(it.month)}</b></div><div class="sp-kv big"><span>결제 예정${it.dueDate ? ' · ' + esc(it.dueDate.slice(5).replace('-', '/')) + ' (' + esc(ddayText(it.dueDate)) + ')' : ''}</span><b>${won(it.due)}</b></div>`
+      : `<div class="sp-kv big"><span>사용 중인 금액</span><b>${won(it.balance)}</b></div><div class="sp-kv"><span>한도</span><b>${won(it.limit)}</b></div><div class="sp-kv"><span>남은 한도</span><b>${won(Number.isFinite(it.limit) && Number.isFinite(it.balance) ? it.limit - it.balance : NaN)}</b></div>`;
+    const form = editing ? `<form class="sp-form" data-spend-form="${s.key}">${SPEND_FIELDS[s.kind].map(([f, l]) => `<label>${l}<input data-f="${f}" inputmode="numeric" placeholder="숫자만" value="${Number.isFinite(it[f]) ? it[f] : ''}"></label>`).join('')}${s.kind === 'card' ? `<label>결제일<input data-f="dueDate" type="date" value="${esc(it.dueDate || '')}"></label>` : ''}<div class="row"><button class="btn primary small" type="submit">저장</button><button class="btn small" type="button" data-spend-cancel>취소</button></div></form>` : '';
+    return `<section class="sp-card" style="${cssVars(s.c)}"><header class="sp-head"><span class="ic" aria-hidden="true">${s.icon}</span><b>${s.label}<small>${s.who}</small></b>${editing ? '' : `<button type="button" class="btn small" data-spend-edit="${s.key}">입력·수정</button>`}</header>${rows}${form}<div class="sp-foot"><span>${it.updatedAt ? '입력: ' + esc(it.by || '가족') + ' · ' + new Date(it.updatedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) + (it.source === 'auto' ? ' · 자동' : '') : '아직 입력한 금액이 없어요.'}</span></div></section>`;
+  }).join('');
+  const box = $('spendCards');
+  box.querySelectorAll('[data-spend-edit]').forEach(b => b.onclick = () => { spendEdit = b.dataset.spendEdit; renderSpending(); });
+  box.querySelectorAll('[data-spend-cancel]').forEach(b => b.onclick = () => { spendEdit = ''; renderSpending(); });
+  box.querySelectorAll('[data-spend-form]').forEach(f => f.onsubmit = async e => {
+    e.preventDefault(); const patch = {};
+    for (const inp of f.querySelectorAll('[data-f]')) { if (inp.dataset.f === 'dueDate') { patch.dueDate = inp.value || ''; continue; } const n = spendNum(inp.value); if (Number.isNaN(n)) { alert('금액은 숫자로만 적어 주세요.'); inp.focus(); return; } patch[inp.dataset.f] = n; }
+    try { await saveSpending({ [f.dataset.spendForm]: patch }, 'manual'); spendEdit = ''; spendShow = true; renderSpending(); } catch (err) { alert('저장하지 못했어요. 연결을 확인해 주세요.'); }
+  });
+  const log = Array.isArray(store.spending?.log) ? store.spending.log.slice().sort((a, b) => String(b.date).localeCompare(String(a.date))) : [];
+  $('spendLogCount').textContent = log.length + '일';
+  $('spendLog').innerHTML = log.length ? log.slice(0, 31).map(r => `<tr><td>${esc(String(r.date).slice(5).replace('-', '/'))}</td><td>${won(r.shinhan)}</td><td>${won(r.hyundai)}</td><td>${won(r.loan)}</td></tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted)">아직 기록이 없어요.</td></tr>';
+}
+async function saveSpending(patchByKey, source) {
+  if (!store) throw new Error('not-ready');
+  const old = store.spending ? JSON.parse(JSON.stringify(store.spending)) : null, next = old ? JSON.parse(JSON.stringify(old)) : {};
+  next.items = next.items && typeof next.items === 'object' ? next.items : {}; next.log = Array.isArray(next.log) ? next.log : [];
+  for (const s of SPEND_ITEMS) {
+    const p = patchByKey?.[s.key]; if (!p || typeof p !== 'object') continue; const it = { ...(next.items[s.key] || {}) };
+    for (const [f] of SPEND_FIELDS[s.kind]) { if (!(f in p)) continue; const n = spendNum(p[f]); if (Number.isNaN(n)) throw new Error('bad-number:' + s.key + '.' + f); if (n === null) delete it[f]; else it[f] = n; }
+    if (s.kind === 'card' && 'dueDate' in p) { if (p.dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(p.dueDate)) throw new Error('bad-date'); it.dueDate = p.dueDate || ''; }
+    it.updatedAt = Date.now(); it.by = source === 'auto' ? '자동 갱신' : (me?.name || '가족'); it.source = source === 'auto' ? 'auto' : 'manual'; next.items[s.key] = it;
+  }
+  const today = dayKey(), row = { date: today }; const pick = (k, f) => { const v = next.items[k]?.[f]; if (Number.isFinite(v)) row[k] = v; }; pick('shinhan', 'month'); pick('hyundai', 'month'); if (Number.isFinite(next.items.loan?.balance)) row.loan = next.items.loan.balance;
+  next.log = next.log.filter(r => r && r.date !== today && r.date >= addDays(today, -62)); next.log.push(row);
+  store.spending = next;
+  try { await updateDoc(ref, { spending: next }); } catch (e) { if (old) store.spending = old; else delete store.spending; throw e; }
+  return next;
+}
+$('spendMask').onclick = () => { spendShow = !spendShow; renderSpending(); };
+// 자동 갱신 도구(예: 예약 작업)가 로그인된 가족 화면에서 금액만 넣을 때 쓰는 함수. 카드번호·계좌번호는 받지 않습니다.
+window.__getFamilySpending = () => JSON.parse(JSON.stringify(store?.spending || {}));
+window.__setFamilySpending = async patch => { await saveSpending(patch, 'auto'); renderSpending(); return Object.keys(patch || {}).length; };
+
 function renderHomeV2() {
   if (!store) return;
   gcalBoot();
-  renderMiniCal(); renderUpcoming(); renderHomeMembers(); renderSchoolV2(); paintWeatherHome(); renderGcalUi();
+  renderMiniCal(); renderUpcoming(); renderHomeMembers(); renderSchoolV2(); paintWeatherHome(); renderGcalUi(); renderSpending();
   if (!wxData) loadWeather(false);
 }
 
