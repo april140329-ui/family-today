@@ -350,7 +350,36 @@ body.v2 .cal-cell{min-height:30px;padding:2px}body.v2 .cal-d{font-size:11px;padd
 }
 html.watch-mode .side button[data-view=weather],html.watch-mode .side button[data-view=life],html.watch-mode .side-set,html.watch-mode .g-life,html.watch-mode .g-stats,html.watch-mode .mini-cal{display:none!important}
 html.watch-mode .shell{max-width:380px;margin:0 auto}
-</style></head>
+
+body.v2 details.dashboard-section>.acc-body{background:transparent}
+body.v2 .timeline{display:grid;gap:8px}
+body.v2 .tl-row{display:grid;grid-template-columns:56px minmax(0,1fr);gap:8px;align-items:start;padding:0;border:0;background:transparent;min-width:0}
+body.v2 .tl-time-cell{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding-top:9px;min-width:0}
+body.v2 .tl-time{font-size:12px;color:var(--muted);font-weight:700}
+body.v2 .tl-check{width:22px;height:22px;accent-color:var(--accent);margin:0}
+body.v2 .tl-item{min-width:0;border:1px solid var(--line);border-left:4px solid var(--tl,#7fb0ee);border-radius:12px;background:#fff;padding:9px 11px;display:flex;flex-direction:column;gap:3px;overflow-wrap:anywhere}
+body.v2 .tl-item strong{font-size:14px;line-height:1.35}
+body.v2 .tl-label{font-size:11px;color:var(--muted);font-weight:700}
+body.v2 .tl-item small{font-size:12px;color:var(--muted)}
+body.v2 .tl-link{font-size:12px;color:var(--accent);text-decoration:none;font-weight:700;align-self:flex-start}
+body.v2 .tl-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+body.v2 .tl-actions:empty{display:none}
+body.v2 .tl-task-row{cursor:pointer}
+body.v2 .family-filter-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 8px}
+body.v2 .member{min-height:38px;border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 14px;font:inherit;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+body.v2 .member.active{background:var(--accent);border-color:var(--accent);color:#fff}
+body.v2 .family-day{border:1px solid var(--line);border-left:4px solid var(--tl,#7fb0ee);border-radius:14px;padding:11px;background:#fff}
+body.v2 .inline-task-add,body.v2 .inline-task-edit,body.v2 .ev-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:8px}
+body.v2 .inline-task-add>input[data-add-text],body.v2 .inline-task-edit>input[data-edit-text],body.v2 .ev-form>.ev-title,body.v2 .ev-form>.ev-who,body.v2 .ev-form>.ev-note,body.v2 .ev-form>.ev-link,body.v2 .ev-form>.ev-mode,body.v2 .weekday-picker{grid-column:1/-1}
+body.v2 .ev-form label,body.v2 .task-time-control,body.v2 .task-date-control{display:grid;gap:3px;font-size:12px;color:var(--muted);font-weight:700;min-width:0}
+body.v2 .ev-form label input,body.v2 .ev-form label select,body.v2 .task-time-control input,body.v2 .task-date-control input{width:100%;min-width:0}
+@media(min-width:900px){.cal-layout{grid-template-columns:minmax(0,1fr) 380px}}
+
+body.v2 .tl-row{margin:0}
+body.v2 .cal-cell.sel{outline:0}
+body.v2 .day-box h3,body.v2 #dayTitle{color:var(--ink)}
+@media(min-width:900px){.cal-side .week-box{order:-1}.cal-side .week-box .up-list{max-height:250px;overflow:auto}}@media(max-width:899px){body.v2 .cal-n{display:none}}
+body.v2 .notice-archive>summary{font-size:14px;padding:11px 13px}@media(max-width:300px){.up-row{grid-template-columns:34px minmax(0,1fr)}.up-day{font-size:10px}[data-gcal-chip]{display:none!important}}</style></head>
 <body class="v2"><main>
 <div class="alarm-banner" id="alarmBanner" hidden role="alert"><div><b id="alarmTitle"></b><div class="alarm-body" id="alarmBody"></div></div><button class="btn small primary" id="alarmClose" type="button">확인</button></div>
 <section class="card gate" id="gate"><div class="nature-crew" aria-hidden="true"><span class="nature-friend">🪲</span><span class="nature-friend">🐶</span><span class="nature-friend">🐱</span><span class="nature-friend">🐹</span><span class="nature-friend">🌿</span></div><h1 style="margin-top:18px">우리 가족 작은 탐험대</h1><p id="gateMsg">가족 구글 계정으로 로그인하면 함께 쓰는 할 일과 일정을 볼 수 있어요.</p><button class="btn primary" id="loginBtn">구글로 로그인</button></section>
@@ -832,6 +861,7 @@ function renderMonth() {
     const date = ymd(calY, calM, d), its = itemsOn(date), dow = (first + d - 1) % 7, h = holiday(date);
     html += `<button type="button" class="cal-cell${date === today ? ' today' : ''}${calDayPicked && date === calSel ? ' sel' : ''}" data-date="${date}"><span class="cal-d${h || dow === 0 ? ' holi' : dow === 6 ? ' sat' : ''}">${d}</span>${h ? `<span class="hol">${esc(h)}</span>` : ''}${its.length ? `<span class="cal-n">${its.length}</span>` : ''}<span class="chips">${its.slice(0, 3).map(x => `<span class="chip" style="${cssVars(x.c)}" title="${esc(x.label + ' · ' + x.title)}">${esc(x.label)} · ${esc(x.title)}</span>`).join('')}${its.length > 3 ? `<span class="more">+${its.length - 3}</span>` : ''}</span></button>`;
   }
+  for (let i = (first + dim) % 7; i % 7 !== 0; i++) html += '<div class="cal-cell empty"></div>';
   const el = $('calGrid'); el.innerHTML = html;
   el.querySelectorAll('.cal-cell[data-date]').forEach(b => b.onclick = () => gotoDate(b.dataset.date, false));
 }
