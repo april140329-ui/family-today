@@ -404,7 +404,9 @@ body.v2 .notice-archive>summary{font-size:14px;padding:11px 13px}@media(max-widt
 @media(max-width:899px){.side button{font-size:10px}.spend-sum b{font-size:15px}}
 @media(max-width:300px){.side button[data-view=spend]{display:none!important}}
 html.watch-mode .side button[data-view=spend]{display:none!important}
-@media(min-width:900px){.side-set{border-top:0!important;border-radius:18px!important;padding-top:4px!important;margin-top:8px}}</style></head>
+@media(min-width:900px){.side-set{border-top:0!important;border-radius:18px!important;padding-top:4px!important;margin-top:8px}}
+.pay-chart{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;align-items:end}.pay-col{text-align:center;min-width:0}.pay-barbox{height:150px;background:#f1f6fd;border-radius:12px;display:flex;align-items:end;overflow:hidden}.pay-bar{width:100%;background:linear-gradient(#71b5ff,#387dd4);border-radius:10px 10px 0 0}.pay-label{font-size:12px;margin-top:7px}.pay-value{font-size:13px;font-weight:700;min-height:22px}.pay-entry{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.pay-entry label{display:grid;gap:4px;font-size:12px}.pay-entry input{width:100%;min-width:0}.pay-actions{grid-column:1/-1;display:flex;gap:8px}@media(max-width:420px){.pay-value{font-size:11px}}
+</style></head>
 <body class="v2"><main>
 <div class="alarm-banner" id="alarmBanner" hidden role="alert"><div><b id="alarmTitle"></b><div class="alarm-body" id="alarmBody"></div></div><button class="btn small primary" id="alarmClose" type="button">확인</button></div>
 <section class="card gate" id="gate"><div class="nature-crew" aria-hidden="true"><span class="nature-friend">🪲</span><span class="nature-friend">🐶</span><span class="nature-friend">🐱</span><span class="nature-friend">🐹</span><span class="nature-friend">🌿</span></div><h1 style="margin-top:18px">우리 가족 작은 탐험대</h1><p id="gateMsg">가족 구글 계정으로 로그인하면 함께 쓰는 할 일과 일정을 볼 수 있어요.</p><button class="btn primary" id="loginBtn">구글로 로그인</button></section>
@@ -485,6 +487,7 @@ html.watch-mode .side button[data-view=spend]{display:none!important}
 <div class="spend-sum"><div><small>오늘 카드 사용</small><b id="spendSumToday">–</b></div><div><small>이번 달 카드 사용</small><b id="spendSumMonth">–</b></div><div><small>결제 예정 합계</small><b id="spendSumDue">–</b></div></div>
 <p class="set-note" style="margin:0">카드사·은행과 자동으로 연결된 화면이 아니에요. 카드 앱에 보이는 금액을 적어 두는 칸이고, 저장하면 로그인한 가족 계정 모두가 볼 수 있어요. 카드번호·계좌번호·비밀번호는 적지 마세요.</p></section>
 <div class="spend-grid" id="spendCards"></div>
+<section class="vcard" style="margin-top:12px"><div class="vhead"><h3>두 카드 월별 결제금액</h3><span class="sp"></span><button type="button" class="btn small" id="payEdit">월별 금액 입력</button></div><p class="set-note">결제일이 속한 달 기준 · 지난달까지 확정액, 이번 달과 다음 달은 카드 앱의 예정액을 입력해줘. 두 카드 모두 입력해야 합계가 표시돼.</p><div id="payChart" aria-label="두 카드 결제월별 합계 막대그래프"></div><div id="payForm"></div></section>
 <section class="vcard" style="margin-top:12px"><div class="vhead"><h3>🧾 최근 기록</h3><span class="sp"></span><span class="pill" id="spendLogCount">0일</span></div><div class="sp-log-wrap"><table class="sp-log"><thead><tr><th>날짜</th><th>신한 이번 달</th><th>현대 이번 달</th><th>마이너스통장</th></tr></thead><tbody id="spendLog"></tbody></table></div><p class="set-note">금액을 저장한 날마다 그날 값이 한 줄씩 남아요. 최근 62일까지 보관해요.</p></section>
 </section>
 
@@ -1540,15 +1543,21 @@ async function saveSpending(patchByKey, source) {
   try { await updateDoc(ref, { spending: next }); } catch (e) { if (old) store.spending = old; else delete store.spending; throw e; }
   return next;
 }
-$('spendMask').onclick = () => { spendShow = !spendShow; renderSpending(); };
+$('spendMask').onclick = () => { spendShow = !spendShow; renderSpending(); renderPayChart(); };
 // 자동 갱신 도구(예: 예약 작업)가 로그인된 가족 화면에서 금액만 넣을 때 쓰는 함수. 카드번호·계좌번호는 받지 않습니다.
 window.__getFamilySpending = () => JSON.parse(JSON.stringify(store?.spending || {}));
 window.__setFamilySpending = async patch => { await saveSpending(patch, 'auto'); renderSpending(); return Object.keys(patch || {}).length; };
 
+
+let payEditing=false;
+function payMonths(){const now=new Date();return [-2,-1,0,1].map((off,i)=>{const d=new Date(now.getFullYear(),now.getMonth()+off,1);return {key:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),label:['저저번달','저번달','이번달','다음달'][i]};});}
+function renderPayChart(){if(!$('payChart')||!store)return;const data=store.spending?.monthlyPayments||{};const months=payMonths();const totals=months.map(m=>{const p=data[m.key]||{};return Number.isFinite(p.shinhan)&&Number.isFinite(p.hyundai)?p.shinhan+p.hyundai:null});const max=Math.max(1,...totals.filter(Number.isFinite));$('payChart').className='pay-chart';$('payChart').innerHTML=months.map((m,i)=>{const v=totals[i];return '<div class="pay-col"><div class="pay-value">'+(v===null?'미입력':won(v))+'</div><div class="pay-barbox">'+(v!==null&&spendShow?'<div class="pay-bar" style="height:'+Math.max(v===0?0:2,Math.round(v/max*100))+'%"></div>':'')+'</div><div class="pay-label">'+m.label+'<br>'+m.key+(i>=2?' · 예정':' · 확정')+'</div></div>'}).join('');$('payEdit').textContent=payEditing?'입력 닫기':'월별 금액 입력';$('payForm').innerHTML=payEditing?'<form id="payInput" class="pay-entry">'+months.map(m=>{const p=data[m.key]||{};return ['shinhan','hyundai'].map(k=>'<label>'+m.label+' ('+m.key+') '+(k==='shinhan'?'신한':'현대')+'<input inputmode="numeric" data-month="'+m.key+'" data-card="'+k+'" placeholder="미입력" value="'+(Number.isFinite(p[k])?p[k]:'')+'"></label>').join('')}).join('')+'<div class="pay-actions"><button class="btn primary small" type="submit">저장</button><button class="btn small" type="button" id="payCancel">취소</button></div></form>':'';if(payEditing){$('payCancel').onclick=()=>{payEditing=false;renderPayChart()};$('payInput').onsubmit=async e=>{e.preventDefault();const result={};for(const el of e.currentTarget.querySelectorAll('input')){const n=spendNum(el.value);if(Number.isNaN(n)){alert('금액은 0 이상의 숫자로 적어줘.');el.focus();return}(result[el.dataset.month] ||= {})[el.dataset.card]=n}const button=e.currentTarget.querySelector('[type=submit]');button.disabled=true;try{const changes={};for(const [key,val] of Object.entries(result))changes['spending.monthlyPayments.'+key]=val;await updateDoc(ref,changes);payEditing=false;renderPayChart()}catch(err){alert('저장하지 못했어. 연결과 저장 권한을 확인해줘.');button.disabled=false}}}}
+$('payEdit').onclick=()=>{payEditing=!payEditing;renderPayChart()};
+
 function renderHomeV2() {
   if (!store) return;
   gcalBoot();
-  renderMiniCal(); renderUpcoming(); renderHomeMembers(); renderSchoolV2(); paintWeatherHome(); renderGcalUi(); renderSpending();
+  renderMiniCal(); renderUpcoming(); renderHomeMembers(); renderSchoolV2(); paintWeatherHome(); renderGcalUi(); renderSpending(); renderPayChart();
   if (!wxData) loadWeather(false);
 }
 
