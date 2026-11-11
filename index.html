@@ -488,7 +488,7 @@ html.watch-mode .side button[data-view=spend]{display:none!important}
 <p class="set-note" style="margin:0">카드사·은행과 자동으로 연결된 화면이 아니에요. 카드 앱에 보이는 금액을 적어 두는 칸이고, 저장하면 로그인한 가족 계정 모두가 볼 수 있어요. 카드번호·계좌번호·비밀번호는 적지 마세요.</p></section>
 <div class="spend-grid" id="spendCards"></div>
 <section class="vcard" style="margin-top:12px"><div class="vhead"><h3>두 카드 월별 결제금액</h3><span class="sp"></span><button type="button" class="btn small" id="payEdit">월별 금액 입력</button></div><p class="set-note">결제일이 속한 달 기준 · 지난달까지 확정액, 이번 달과 다음 달은 카드 앱의 예정액을 입력해줘. 두 카드 모두 입력해야 합계가 표시돼.</p><div id="payChart" aria-label="두 카드 결제월별 합계 막대그래프"></div><div id="payForm"></div></section>
-<section class="vcard" style="margin-top:12px"><div class="vhead"><h3>🧾 최근 기록</h3><span class="sp"></span><span class="pill" id="spendLogCount">0일</span></div><div class="sp-log-wrap"><table class="sp-log"><thead><tr><th>날짜</th><th>신한 이번 달</th><th>현대 이번 달</th><th>마이너스통장</th></tr></thead><tbody id="spendLog"></tbody></table></div><p class="set-note">금액을 저장한 날마다 그날 값이 한 줄씩 남아요. 최근 62일까지 보관해요.</p></section>
+<section class="vcard" style="margin-top:12px"><div class="vhead"><h3>🧾 최근 기록</h3><span class="sp"></span><span class="pill" id="spendLogCount">0일</span></div><div class="sp-log-wrap"><table class="sp-log"><thead><tr><th>날짜</th><th>신한 이번 달</th><th>현대 이번 달</th><th>마이너스통장</th><th>신한은행 대출</th></tr></thead><tbody id="spendLog"></tbody></table></div><p class="set-note">금액을 저장한 날마다 그날 값이 한 줄씩 남아요. 최근 62일까지 보관해요.</p></section>
 </section>
 
 <section class="view" data-view-panel="settings"><div class="set-grid">
@@ -1493,7 +1493,8 @@ $('v2Refresh').onclick = () => { loadWeather(true); if (gcalState === 'ready') g
 const SPEND_ITEMS = [
   { key: 'shinhan', kind: 'card', label: '신한카드', who: '내 카드', icon: '💳', c: { fg: '#1f5fb8', bg: '#e3eefc', bar: '#2f7de1' } },
   { key: 'hyundai', kind: 'card', label: '현대카드', who: '남편 카드', icon: '💳', c: { fg: '#3a3f52', bg: '#eceef4', bar: '#6b7288' } },
-  { key: 'loan', kind: 'loan', label: '경남은행 마이너스통장', who: '남편 통장', icon: '🏦', c: { fg: '#157a52', bg: '#def5ea', bar: '#1f9d6b' } }
+  { key: 'loan', kind: 'loan', label: '경남은행 마이너스통장', who: '남편 통장', icon: '🏦', c: { fg: '#157a52', bg: '#def5ea', bar: '#1f9d6b' } },
+  { key: 'shinhanLoan', kind: 'loan', label: '신한은행 대출', who: '대출', icon: '🏦', c: { fg: '#1f5fb8', bg: '#e3eefc', bar: '#2f7de1' } }
 ];
 const SPEND_FIELDS = { card: [['today', '오늘 사용액'], ['month', '이번 달 사용액'], ['due', '결제 예정 금액']], loan: [['balance', '사용 중인 금액(대출 잔액)'], ['limit', '한도']] };
 var spendShow = false, spendEdit = '';
@@ -1525,7 +1526,7 @@ function renderSpending() {
   });
   const log = Array.isArray(store.spending?.log) ? store.spending.log.slice().sort((a, b) => String(b.date).localeCompare(String(a.date))) : [];
   $('spendLogCount').textContent = log.length + '일';
-  $('spendLog').innerHTML = log.length ? log.slice(0, 31).map(r => `<tr><td>${esc(String(r.date).slice(5).replace('-', '/'))}</td><td>${won(r.shinhan)}</td><td>${won(r.hyundai)}</td><td>${won(r.loan)}</td></tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted)">아직 기록이 없어요.</td></tr>';
+  $('spendLog').innerHTML = log.length ? log.slice(0, 31).map(r => `<tr><td>${esc(String(r.date).slice(5).replace('-', '/'))}</td><td>${won(r.shinhan)}</td><td>${won(r.hyundai)}</td><td>${won(r.loan)}</td><td>${won(r.shinhanLoan)}</td></tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted)">아직 기록이 없어요.</td></tr>';
 }
 async function saveSpending(patchByKey, source) {
   if (!store) throw new Error('not-ready');
@@ -1537,7 +1538,7 @@ async function saveSpending(patchByKey, source) {
     if (s.kind === 'card' && 'dueDate' in p) { if (p.dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(p.dueDate)) throw new Error('bad-date'); it.dueDate = p.dueDate || ''; }
     it.updatedAt = Date.now(); it.by = source === 'auto' ? '자동 갱신' : (me?.name || '가족'); it.source = source === 'auto' ? 'auto' : 'manual'; next.items[s.key] = it;
   }
-  const today = dayKey(), row = { date: today }; const pick = (k, f) => { const v = next.items[k]?.[f]; if (Number.isFinite(v)) row[k] = v; }; pick('shinhan', 'month'); pick('hyundai', 'month'); if (Number.isFinite(next.items.loan?.balance)) row.loan = next.items.loan.balance;
+  const today = dayKey(), row = { date: today }; const pick = (k, f) => { const v = next.items[k]?.[f]; if (Number.isFinite(v)) row[k] = v; }; pick('shinhan', 'month'); pick('hyundai', 'month'); if (Number.isFinite(next.items.loan?.balance)) row.loan = next.items.loan.balance; if (Number.isFinite(next.items.shinhanLoan?.balance)) row.shinhanLoan = next.items.shinhanLoan.balance;
   next.log = next.log.filter(r => r && r.date !== today && r.date >= addDays(today, -62)); next.log.push(row);
   store.spending = next;
   try { await updateDoc(ref, { spending: next }); } catch (e) { if (old) store.spending = old; else delete store.spending; throw e; }
