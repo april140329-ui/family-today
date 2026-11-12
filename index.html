@@ -1493,14 +1493,15 @@ $('v2Refresh').onclick = () => { loadWeather(true); if (gcalState === 'ready') g
 const SPEND_ITEMS = [
   { key: 'shinhan', kind: 'card', label: '신한카드', who: '내 카드', icon: '💳', c: { fg: '#1f5fb8', bg: '#e3eefc', bar: '#2f7de1' } },
   { key: 'hyundai', kind: 'card', label: '현대카드', who: '남편 카드', icon: '💳', c: { fg: '#3a3f52', bg: '#eceef4', bar: '#6b7288' } },
-  { key: 'loan', kind: 'loan', label: '경남은행 마이너스통장', who: '남편 통장', icon: '🏦', c: { fg: '#157a52', bg: '#def5ea', bar: '#1f9d6b' } },
+  { key: 'loan', kind: 'overdraft', label: '경남은행 마이너스통장', who: '남편 통장', icon: '🏦', c: { fg: '#157a52', bg: '#def5ea', bar: '#1f9d6b' } },
   { key: 'shinhanLoan', kind: 'loan', label: '신한은행 대출', who: '대출', icon: '🏦', c: { fg: '#1f5fb8', bg: '#e3eefc', bar: '#2f7de1' } }
 ];
-const SPEND_FIELDS = { card: [['today', '오늘 사용액'], ['month', '이번 달 사용액'], ['due', '결제 예정 금액']], loan: [['balance', '사용 중인 금액(대출 잔액)'], ['limit', '한도']] };
+const SPEND_FIELDS = { card: [['today', '오늘 사용액'], ['month', '이번 달 사용액'], ['due', '결제 예정 금액']], loan: [['balance', '사용 중인 금액(대출 잔액)'], ['limit', '한도']], overdraft: [['signedBalance', '통장 잔고 (+ 또는 -)'], ['limit', '대출 한도']] };
 var spendShow = false, spendEdit = '';
 const won = v => Number.isFinite(v) ? (spendShow ? Math.round(v).toLocaleString('ko-KR') + '원' : '•••••') : '–';
 const spendItems = () => (store?.spending && typeof store.spending === 'object' && store.spending.items) || {};
-function spendNum(v) { if (v === '' || v === null || v === undefined) return null; const n = Number(String(v).replace(/[,\s원]/g, '')); return Number.isFinite(n) && n >= 0 && n <= 1e11 ? Math.round(n) : NaN; }
+function spendNum(v, signed = false) { if (v === '' || v === null || v === undefined) return null; const t = String(v).replace(/[,\s원]/g, ''); if (!(signed ? /^[+-]?\d+(?:\.\d+)?$/ : /^\d+(?:\.\d+)?$/).test(t)) return NaN; const n = Number(t); return Number.isFinite(n) && n >= (signed ? -1e11 : 0) && n <= 1e11 ? Math.round(n) : NaN; }
+const signedWon = v => Number.isFinite(v) && spendShow ? (v > 0 ? '+' : '') + Math.round(v).toLocaleString('ko-KR') + '원' : won(v);
 function renderSpending() {
   if (!$('spendCards') || !store) return;
   const items = spendItems(), cards = SPEND_ITEMS.filter(s => s.kind === 'card'), sum = f => { const vals = cards.map(s => items[s.key]?.[f]).filter(Number.isFinite); return vals.length ? vals.reduce((a, b) => a + b, 0) : NaN; };
@@ -1512,8 +1513,9 @@ function renderSpending() {
     const it = items[s.key] || {}, editing = spendEdit === s.key;
     const rows = s.kind === 'card'
       ? `<div class="sp-kv"><span>오늘 사용</span><b>${won(it.today)}</b></div><div class="sp-kv"><span>이번 달 사용</span><b>${won(it.month)}</b></div><div class="sp-kv big"><span>결제 예정${it.dueDate ? ' · ' + esc(it.dueDate.slice(5).replace('-', '/')) + ' (' + esc(ddayText(it.dueDate)) + ')' : ''}</span><b>${won(it.due)}</b></div>`
+      : s.kind === 'overdraft' ? `<div class="sp-kv big"><span>통장 잔고</span><b>${signedWon(it.signedBalance)}</b></div><div class="sp-kv"><span>대출 한도</span><b>${won(it.limit)}</b></div><div class="sp-kv"><span>인출 가능 금액 (계산)</span><b>${won(Number.isFinite(it.limit) && Number.isFinite(it.signedBalance) ? Math.max(0, it.limit + it.signedBalance) : NaN)}</b></div>${Number.isFinite(it.balance) && !Number.isFinite(it.signedBalance) ? `<p class="set-note">기존 사용액 ${won(it.balance)}은 그대로 보관 중이야. 현재 통장 잔고를 부호와 함께 새로 입력해줘.</p>` : ''}`
       : `<div class="sp-kv big"><span>사용 중인 금액</span><b>${won(it.balance)}</b></div><div class="sp-kv"><span>한도</span><b>${won(it.limit)}</b></div><div class="sp-kv"><span>남은 한도</span><b>${won(Number.isFinite(it.limit) && Number.isFinite(it.balance) ? it.limit - it.balance : NaN)}</b></div>`;
-    const form = editing ? `<form class="sp-form" data-spend-form="${s.key}">${SPEND_FIELDS[s.kind].map(([f, l]) => `<label>${l}<input data-f="${f}" inputmode="numeric" placeholder="숫자만" value="${Number.isFinite(it[f]) ? it[f] : ''}"></label>`).join('')}${s.kind === 'card' ? `<label>결제일<input data-f="dueDate" type="date" value="${esc(it.dueDate || '')}"></label>` : ''}<div class="row"><button class="btn primary small" type="submit">저장</button><button class="btn small" type="button" data-spend-cancel>취소</button></div></form>` : '';
+    const form = editing ? `<form class="sp-form" data-spend-form="${s.key}">${SPEND_FIELDS[s.kind].map(([f, l]) => `<label>${l}<input data-f="${f}" inputmode="${f === 'signedBalance' ? 'text' : 'numeric'}" placeholder="${f === 'signedBalance' ? '+ 또는 - 포함' : '숫자만'}" value="${Number.isFinite(it[f]) ? it[f] : ''}"></label>`).join('')}${s.kind === 'card' ? `<label>결제일<input data-f="dueDate" type="date" value="${esc(it.dueDate || '')}"></label>` : ''}<div class="row"><button class="btn primary small" type="submit">저장</button><button class="btn small" type="button" data-spend-cancel>취소</button></div></form>` : '';
     return `<section class="sp-card" style="${cssVars(s.c)}"><header class="sp-head"><span class="ic" aria-hidden="true">${s.icon}</span><b>${s.label}<small>${s.who}</small></b>${editing ? '' : `<button type="button" class="btn small" data-spend-edit="${s.key}">입력·수정</button>`}</header>${rows}${form}<div class="sp-foot"><span>${it.updatedAt ? '입력: ' + esc(it.by || '가족') + ' · ' + new Date(it.updatedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) + (it.source === 'auto' ? ' · 자동' : '') : '아직 입력한 금액이 없어요.'}</span></div></section>`;
   }).join('');
   const box = $('spendCards');
@@ -1521,12 +1523,12 @@ function renderSpending() {
   box.querySelectorAll('[data-spend-cancel]').forEach(b => b.onclick = () => { spendEdit = ''; renderSpending(); });
   box.querySelectorAll('[data-spend-form]').forEach(f => f.onsubmit = async e => {
     e.preventDefault(); const patch = {};
-    for (const inp of f.querySelectorAll('[data-f]')) { if (inp.dataset.f === 'dueDate') { patch.dueDate = inp.value || ''; continue; } const n = spendNum(inp.value); if (Number.isNaN(n)) { alert('금액은 숫자로만 적어 주세요.'); inp.focus(); return; } patch[inp.dataset.f] = n; }
+    for (const inp of f.querySelectorAll('[data-f]')) { if (inp.dataset.f === 'dueDate') { patch.dueDate = inp.value || ''; continue; } const n = spendNum(inp.value, f.dataset.spendForm === 'loan' && inp.dataset.f === 'signedBalance'); if (Number.isNaN(n)) { alert('금액은 숫자로만 적어 주세요.'); inp.focus(); return; } patch[inp.dataset.f] = n; }
     try { await saveSpending({ [f.dataset.spendForm]: patch }, 'manual'); spendEdit = ''; spendShow = true; renderSpending(); } catch (err) { alert('저장하지 못했어요. 연결을 확인해 주세요.'); }
   });
   const log = Array.isArray(store.spending?.log) ? store.spending.log.slice().sort((a, b) => String(b.date).localeCompare(String(a.date))) : [];
   $('spendLogCount').textContent = log.length + '일';
-  $('spendLog').innerHTML = log.length ? log.slice(0, 31).map(r => `<tr><td>${esc(String(r.date).slice(5).replace('-', '/'))}</td><td>${won(r.shinhan)}</td><td>${won(r.hyundai)}</td><td>${won(r.loan)}</td><td>${won(r.shinhanLoan)}</td></tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted)">아직 기록이 없어요.</td></tr>';
+  $('spendLog').innerHTML = log.length ? log.slice(0, 31).map(r => `<tr><td>${esc(String(r.date).slice(5).replace('-', '/'))}</td><td>${won(r.shinhan)}</td><td>${won(r.hyundai)}</td><td>${Number.isFinite(r.loanSigned) ? signedWon(r.loanSigned) : Number.isFinite(r.loan) ? won(r.loan) + ' (기존 사용액)' : '–'}</td><td>${won(r.shinhanLoan)}</td></tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted)">아직 기록이 없어요.</td></tr>';
 }
 async function saveSpending(patchByKey, source) {
   if (!store) throw new Error('not-ready');
@@ -1534,11 +1536,11 @@ async function saveSpending(patchByKey, source) {
   next.items = next.items && typeof next.items === 'object' ? next.items : {}; next.log = Array.isArray(next.log) ? next.log : [];
   for (const s of SPEND_ITEMS) {
     const p = patchByKey?.[s.key]; if (!p || typeof p !== 'object') continue; const it = { ...(next.items[s.key] || {}) };
-    for (const [f] of SPEND_FIELDS[s.kind]) { if (!(f in p)) continue; const n = spendNum(p[f]); if (Number.isNaN(n)) throw new Error('bad-number:' + s.key + '.' + f); if (n === null) delete it[f]; else it[f] = n; }
+    for (const [f] of SPEND_FIELDS[s.kind]) { if (!(f in p)) continue; const n = spendNum(p[f], s.key === 'loan' && f === 'signedBalance'); if (Number.isNaN(n)) throw new Error('bad-number:' + s.key + '.' + f); if (n === null) delete it[f]; else it[f] = n; }
     if (s.kind === 'card' && 'dueDate' in p) { if (p.dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(p.dueDate)) throw new Error('bad-date'); it.dueDate = p.dueDate || ''; }
     it.updatedAt = Date.now(); it.by = source === 'auto' ? '자동 갱신' : (me?.name || '가족'); it.source = source === 'auto' ? 'auto' : 'manual'; next.items[s.key] = it;
   }
-  const today = dayKey(), row = { date: today }; const pick = (k, f) => { const v = next.items[k]?.[f]; if (Number.isFinite(v)) row[k] = v; }; pick('shinhan', 'month'); pick('hyundai', 'month'); if (Number.isFinite(next.items.loan?.balance)) row.loan = next.items.loan.balance; if (Number.isFinite(next.items.shinhanLoan?.balance)) row.shinhanLoan = next.items.shinhanLoan.balance;
+  const today = dayKey(), row = { date: today }; const pick = (k, f) => { const v = next.items[k]?.[f]; if (Number.isFinite(v)) row[k] = v; }; pick('shinhan', 'month'); pick('hyundai', 'month'); if (Number.isFinite(next.items.loan?.signedBalance)) row.loanSigned = next.items.loan.signedBalance; else if (Number.isFinite(next.items.loan?.balance)) row.loan = next.items.loan.balance; if (Number.isFinite(next.items.shinhanLoan?.balance)) row.shinhanLoan = next.items.shinhanLoan.balance;
   next.log = next.log.filter(r => r && r.date !== today && r.date >= addDays(today, -62)); next.log.push(row);
   store.spending = next;
   try { await updateDoc(ref, { spending: next }); } catch (e) { if (old) store.spending = old; else delete store.spending; throw e; }
