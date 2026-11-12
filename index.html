@@ -419,6 +419,8 @@ body.v2 #integratedHint,body.v2 #integratedTimeline,body.v2 #unifiedTaskPanel{di
 .sel-task-btn{border:0;background:transparent;padding:0;text-align:left;font:inherit;color:inherit;cursor:pointer;flex:1;min-width:0}.sel-task-btn:hover{background:#edf5ff}
 
 .gcal-source{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px;border:1px solid #dbe9f7;border-radius:12px}.gcal-source label{display:flex;align-items:center;gap:8px;min-width:0;overflow-wrap:anywhere}.gcal-source select{max-width:100%;min-height:40px;border:1px solid #cbdff0;border-radius:10px;padding:5px;background:white}
+
+.mini-d.selected>i{outline:2px solid #2d73cc;outline-offset:2px;border-radius:50%;width:26px;height:26px;display:grid;place-items:center}
 </style></head>
 <body class="v2"><main>
 <div class="alarm-banner" id="alarmBanner" hidden role="alert"><div><b id="alarmTitle"></b><div class="alarm-body" id="alarmBody"></div></div><button class="btn small primary" id="alarmClose" type="button">확인</button></div>
@@ -446,7 +448,7 @@ body.v2 #integratedHint,body.v2 #integratedTimeline,body.v2 #unifiedTaskPanel{di
 <div class="home-grid">
 <section class="vcard g-cal"><div class="mini-wrap">
 <div class="mini-cal"><div class="mini-head"><button type="button" id="miniPrev" aria-label="이전 달">‹</button><b id="miniTitle"></b><button type="button" id="miniNext" aria-label="다음 달">›</button></div><div class="mini-grid" id="miniGrid"></div></div>
-<div class="up-wrap"><div class="up-head"><b>오늘부터 7일</b><span class="pill" id="upCount">0건</span><span class="sp" style="flex:1"></span><button type="button" class="linkish" data-gcal-chip hidden></button></div><div class="up-list" id="homeUpcoming"></div><div class="up-foot"><button type="button" class="btn small" id="homeAddEvent">+ 일정 추가</button></div></div>
+<div class="up-wrap"><div class="up-head"><b id="homeDayHeading">오늘 일정</b><span class="pill" id="upCount">0건</span><span class="sp" style="flex:1"></span><button type="button" class="linkish" data-gcal-chip hidden></button></div><div class="up-list" id="homeUpcoming"></div><div class="up-foot"><button type="button" class="btn small" id="homeAddEvent">+ 일정 추가</button></div></div>
 </div></section>
 <section class="vcard g-wx"><div class="vhead"><h2>☁️ 오늘 · 내일 날씨</h2><span class="sp"></span><button type="button" class="linkish" data-go-view="weather">자세히 ›</button></div><div id="homeWeather"><div class="v-empty">날씨를 불러오는 중…</div></div></section>
 <section class="vcard g-stats stat-bar" id="wikiHome"><span id="wikiTodayLabel" hidden></span>
@@ -1307,10 +1309,10 @@ document.querySelectorAll('[data-go-view]').forEach(b => b.onclick = () => goVie
 document.querySelectorAll('[data-life-tab]').forEach(b => b.onclick = () => setLifeTab(b.dataset.lifeTab));
 { const t = lsGet('v2LifeTab'); if (t && document.querySelector(`[data-tab-panel="${t}"]`)) setLifeTab(t); }
 for (const id of ['timetableSection', 'calendarSection', 'shoppingSection', 'healthSection', 'schoolAlertSection', 'familyNoteSection', 'weekTimetableAcc']) { const el = $(id); if (el) { el.open = true; el.addEventListener('toggle', () => { if (!el.open) el.open = true; }); } }
-$('homeAddEvent').onclick = () => { goView('calendar'); openNewEvent(dayKey(), ''); };
+$('homeAddEvent').onclick = () => { goView('calendar'); openNewEvent(homeSelectedDate || dayKey(), ''); };
 
 // ----- 홈: 미니 달력 -----
-var miniY = new Date().getFullYear(), miniM = new Date().getMonth();
+var miniY = new Date().getFullYear(), miniM = new Date().getMonth(), homeSelectedDate = dayKey(), homeFollowToday = true;
 function renderMiniCal() {
   $('miniTitle').textContent = `${miniY}년 ${miniM + 1}월`;
   const first = new Date(miniY, miniM, 1).getDay(), dim = new Date(miniY, miniM + 1, 0).getDate(), prevDim = new Date(miniY, miniM, 0).getDate(), today = dayKey();
@@ -1319,11 +1321,11 @@ function renderMiniCal() {
   for (let d = 1; d <= dim; d++) {
     const date = ymd(miniY, miniM, d), its = itemsOn(date), dow = (first + d - 1) % 7, hol = holiday(date);
     const dots = its.slice(0, 3).map(x => `<s style="background:${x.c.bar}"></s>`).join('');
-    h += `<button type="button" class="mini-d${date === today ? ' today' : ''}${hol || dow === 0 ? ' holi' : dow === 6 ? ' sat' : ''}" data-mini="${date}" aria-label="${miniM + 1}월 ${d}일 일정 ${its.length}건"><i>${d}</i><span class="mini-dots">${dots}</span></button>`;
+    h += `<button type="button" class="mini-d${date === today ? ' today' : ''}${date === homeSelectedDate ? ' selected' : ''}${hol || dow === 0 ? ' holi' : dow === 6 ? ' sat' : ''}" data-mini="${date}" aria-label="${miniM + 1}월 ${d}일 일정 ${its.length}건"><i>${d}</i><span class="mini-dots">${dots}</span></button>`;
   }
   const tail = (7 - (first + dim) % 7) % 7; for (let i = 1; i <= tail; i++) h += `<span class="mini-d out"><i>${i}</i></span>`;
   const el = $('miniGrid'); el.innerHTML = h;
-  el.querySelectorAll('[data-mini]').forEach(b => b.onclick = () => { goView('calendar'); gotoDate(b.dataset.mini, false); });
+  el.querySelectorAll('[data-mini]').forEach(b => b.onclick = () => { homeSelectedDate=b.dataset.mini; homeFollowToday=homeSelectedDate===dayKey(); renderMiniCal(); renderUpcoming(); });
 }
 $('miniPrev').onclick = () => { if (--miniM < 0) { miniM = 11; miniY--; } renderMiniCal(); };
 $('miniNext').onclick = () => { if (++miniM > 11) { miniM = 0; miniY++; } renderMiniCal(); };
@@ -1338,11 +1340,15 @@ function upcomingRows(days) {
   return rows.sort((a, b) => a.date.localeCompare(b.date) || (a.time || '00:00').localeCompare(b.time || '00:00'));
 }
 function renderUpcoming() {
-  const rows = upcomingRows(7);
-  const html = rows.length ? rows.map(r => { const lab = r.k === 0 ? '오늘' : r.k === 1 ? '내일' : `${Number(r.date.slice(5, 7))}/${Number(r.date.slice(8))}`; return `<button type="button" class="up-row" data-up-date="${r.date}" style="${cssVars(r.c)}"><span class="up-day${r.k === 0 ? ' now' : ''}">${lab}</span><span class="up-time">${esc(r.time || '종일')}</span><span class="up-title">${esc(r.title)}</span><span class="up-tag">${esc(r.label)}</span></button>`; }).join('') : '<div class="v-empty">앞으로 7일 동안 등록된 일정이 없어요.</div>';
-  $('upCount').textContent = rows.length + '건';
-  for (const id of ['homeUpcoming', 'calWeekList']) { const el = $(id); if (!el) continue; el.innerHTML = html; el.querySelectorAll('[data-up-date]').forEach(b => b.onclick = () => { goView('calendar', true); gotoDate(b.dataset.upDate, false); requestAnimationFrame(() => _siv.call($('selectedDayDetail'), { behavior: 'smooth', block: 'nearest' })); }); }
-  const c2 = $('calWeekCount'); if (c2) c2.textContent = rows.length + '건';
+  if(homeFollowToday)homeSelectedDate=dayKey();
+  const date=homeSelectedDate||dayKey(),today=dayKey(),rows=itemsOn(date).slice().sort((a,b)=>(a.time||'00:00').localeCompare(b.time||'00:00'));
+  const dayLabel=date===today?'오늘':date===addDays(today,1)?'내일':Number(date.slice(5,7))+'/'+Number(date.slice(8));
+  $('homeDayHeading').textContent=date===today?'오늘 일정':date.slice(0,4)+'년 '+Number(date.slice(5,7))+'월 '+Number(date.slice(8))+'일 일정';
+  $('upCount').textContent=rows.length+'건';
+  const home=$('homeUpcoming');home.innerHTML=rows.length?rows.map(r=>`<button type="button" class="up-row" data-home-index="${rows.indexOf(r)}" style="${cssVars(r.c)}"><span class="up-day${date===today?' now':''}">${esc(dayLabel)}</span><span class="up-time">${esc(r.time||'종일')}</span><span class="up-title">${esc(r.title)}</span><span class="up-tag">${esc(r.label)}</span></button>`).join(''):'<div class="v-empty">이 날짜에 등록된 일정이 없어요.</div>';
+  home.querySelectorAll('[data-home-index]').forEach(b=>b.onclick=()=>{goView('calendar',true);gotoDate(date,false);requestAnimationFrame(()=>_siv.call($('selectedDayDetail'),{behavior:'smooth',block:'nearest'}));});
+  const week=upcomingRows(7),target=$('calWeekList');if(target){target.innerHTML=week.length?week.map(r=>`<button type="button" class="up-row" data-up-date="${r.date}" style="${cssVars(r.c)}"><span class="up-day">${r.k===0?'오늘':r.k===1?'내일':r.date.slice(5).replace('-','/')}</span><span class="up-time">${esc(r.time||'종일')}</span><span class="up-title">${esc(r.title)}</span><span class="up-tag">${esc(r.label)}</span></button>`).join(''):'<div class="v-empty">앞으로 7일 동안 등록된 일정이 없어요.</div>';target.querySelectorAll('[data-up-date]').forEach(b=>b.onclick=()=>{goView('calendar',true);gotoDate(b.dataset.upDate,false)});}
+  const c2=$('calWeekCount');if(c2)c2.textContent=week.length+'건';
 }
 
 // ----- 홈: 가족별 카드 -----
