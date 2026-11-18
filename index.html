@@ -425,7 +425,39 @@ body.v2 #integratedHint,body.v2 #integratedTimeline,body.v2 #unifiedTaskPanel{di
 .school-dashboard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}.school-notice-card{min-width:0;padding:12px}.school-notice-card .vhead{gap:7px;margin-bottom:8px}.school-notice-card .vhead h2{font-size:16px}.school-more{margin-left:auto}.school-preview{display:grid;gap:7px}.school-note-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;padding:7px 8px;border:1px solid var(--line);border-radius:10px;background:#f8fbff;min-height:48px}.school-note-date{font-size:11px;color:var(--muted);white-space:nowrap}.school-note-title{font-weight:700;font-size:13px;line-height:1.35}.school-note-sub{font-size:12px;line-height:1.4;color:var(--muted);margin-top:3px;white-space:pre-wrap}.school-note-link{display:inline-block;font-size:12px;margin-top:4px}.school-week-card{grid-column:1/-1;padding:12px}.school-week-card .school-week{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.school-week-card .sw-day{min-height:145px;padding:9px}.school-lower{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.school-lower section{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fbfdff;min-width:0}.school-lower h3{font-size:14px;margin:0 0 7px}.school-more-dialog{width:min(720px,calc(100vw - 28px));max-height:min(82vh,760px);overflow:auto}.school-more-body{display:grid;gap:8px;padding:4px 2px 12px}.school-more-body .school-note-row{background:#fff}.school-more-body .school-note-title{font-size:14px}.sw-day .sw-note{font-size:11px;line-height:1.35}.school-preview:empty:after{content:'등록된 항목이 없어요.';color:var(--muted);font-size:12px;padding:8px 2px}.school-week-card .vhead h2{margin:0}@media(max-width:900px){.school-dashboard{grid-template-columns:repeat(2,minmax(0,1fr))}.school-notice-card:last-of-type{grid-column:1/-1}.school-week-card .school-week{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:600px){.school-dashboard{grid-template-columns:1fr}.school-notice-card:last-of-type{grid-column:auto}.school-week-card .school-week{grid-template-columns:repeat(2,minmax(0,1fr))}.school-lower{grid-template-columns:1fr}.school-week-card .vhead{flex-wrap:wrap}}
 
 .school-day-extra{margin-top:7px;padding-top:5px;border-top:1px solid var(--line);font-size:11px;line-height:1.4}.school-day-extra>b{display:block;font-size:11px;color:var(--muted);margin-bottom:2px}.school-day-extra .sw-note{margin:2px 0}
-</style></head>
+</style><style id="study-css">
+.study{display:grid;gap:12px}
+.study .vcard h2,.study .vcard h3{font-size:16px}
+.study-lead{font-size:14px;line-height:1.65;margin:4px 0 0;color:var(--ink)}
+.study-chips{display:flex;gap:6px;flex-wrap:wrap}
+.study-chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:8px 18px;min-height:44px;font:inherit;font-weight:750;color:var(--muted);cursor:pointer}
+.study-chip small{display:block;font-size:10px;font-weight:600;opacity:.85}
+.study-chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.study-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.study-theme{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.study-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.study-sub{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0}
+.study-sub h4{margin:0 0 6px;font-size:15px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.study-sub p{margin:6px 0;font-size:14px;line-height:1.65}
+.study-sub h5{margin:10px 0 0;font-size:12px;color:var(--muted);font-weight:700}
+.study ul{margin:4px 0 0;padding-left:20px}
+.study li{margin:4px 0;font-size:14px;line-height:1.55}
+.study-src{font-size:11px;font-weight:700;border-radius:99px;padding:2px 8px;background:#eef0f5;color:var(--muted)}
+.study-src.src-c{background:#e3f5ec;color:#1b6b4a}
+.study-src.src-gc{background:#efedff;color:#4b3fb8}
+.study-books{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}
+.study-book{background:var(--soft);color:var(--accent);border-radius:8px;padding:4px 9px;font-size:13px;font-weight:650}
+.study-note{border-radius:14px;padding:12px 14px;border:1px solid var(--line);background:#fff}
+.study-note.warn{border-color:#f0d9a8;background:#fffaf0}
+.study-note b{font-size:14px}
+.study-note p{margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--ink)}
+.study-flag{font-size:11px;font-weight:800;border-radius:6px;padding:2px 7px;background:#eef0f5;color:var(--muted);margin-left:6px}
+.study-note.warn .study-flag{background:#fff1e6;color:var(--amber)}
+.study details>summary{cursor:pointer;font-weight:750;min-height:36px;display:flex;align-items:center}
+@media(max-width:300px){.side button[data-view=study]{display:none!important}}
+html.watch-mode .side button[data-view=study]{display:none!important}
+</style>
+</head>
 <body class="v2"><main>
 <div class="alarm-banner" id="alarmBanner" hidden role="alert"><div><b id="alarmTitle"></b><div class="alarm-body" id="alarmBody"></div></div><button class="btn small primary" id="alarmClose" type="button">확인</button></div>
 <section class="card gate" id="gate"><div class="nature-crew" aria-hidden="true"><span class="nature-friend">🪲</span><span class="nature-friend">🐶</span><span class="nature-friend">🐱</span><span class="nature-friend">🐹</span><span class="nature-friend">🌿</span></div><h1 style="margin-top:18px">우리 가족 작은 탐험대</h1><p id="gateMsg">가족 구글 계정으로 로그인하면 함께 쓰는 할 일과 일정을 볼 수 있어요.</p><button class="btn primary" id="loginBtn">구글로 로그인</button></section>
@@ -436,6 +468,7 @@ body.v2 #integratedHint,body.v2 #integratedTimeline,body.v2 #unifiedTaskPanel{di
 <button type="button" data-view="home" class="on"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>홈</button>
 <button type="button" data-view="calendar"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>일정</button>
 <button type="button" data-view="school"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0112 0v11a2 2 0 01-2 2H8a2 2 0 01-2-2z"/><path d="M9 4V3h6v1M9 13h6M9 13v3h6v-3"/></svg>학교</button>
+<button type="button" data-view="study"><svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5z"/><path d="M4 20.5A2.5 2.5 0 006.5 23H20v-5M9 7.5h7M9 11h5"/></svg>공부</button>
 <button type="button" data-view="weather"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 01-.5-7.97A6 6 0 0118 9.5a4.2 4.2 0 01-.5 8.5z"/></svg>날씨</button>
 <button type="button" data-view="life"><svg viewBox="0 0 24 24"><path d="M4 7h16l-1.5 9h-13z"/><path d="M8 7l2-4M16 7l-2-4"/><circle cx="9" cy="20" r="1"/><circle cx="16" cy="20" r="1"/></svg>생활</button>
 <button type="button" data-view="spend"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M7 15h4"/></svg>소비</button>
@@ -495,6 +528,7 @@ body.v2 #integratedHint,body.v2 #integratedTimeline,body.v2 #unifiedTaskPanel{di
 <div class="school-lower"><section><h3>🎒 준비물·챙길 일</h3><div id="schoolPrepPreview"></div></section><section><h3>📝 알림장 내용</h3><div id="schoolLessonPreview"></div></section></div></section>
 </div><dialog id="schoolMoreDialog" class="modal school-more-dialog"><form method="dialog"><div class="modal-head"><h3 id="schoolMoreTitle">학교 알림</h3><button type="submit" class="btn small">닫기</button></div></form><div id="schoolMoreBody" class="school-more-body"></div></dialog></section>
 
+<section class="view" data-view-panel="study"><div class="study" id="studyRoot"></div></section>
 <section class="view" data-view-panel="weather"><section class="vcard">
 <div class="vhead"><h2>☁️ <span id="wxPlace">날씨</span></h2><span class="sp"></span><span class="pill">Open-Meteo</span></div>
 <div class="tabs" id="wxTabs"><button type="button" data-wx-tab="now" class="on">☀️ 현재 날씨</button><button type="button" data-wx-tab="hourly">🕒 시간별</button><button type="button" data-wx-tab="week">📅 7일 예보</button></div>
@@ -1299,6 +1333,7 @@ function goView(v, keepScroll) {
   document.querySelectorAll('[data-view-panel]').forEach(p => p.classList.toggle('on', p.dataset.viewPanel === v));
   markNav(v);
   if (!keepScroll) { $('v2Content').scrollTop = 0; window.scrollTo(0, 0); }
+  if (v === 'study') renderStudy();
   if (v === 'weather') { renderWeatherView(); loadWeather(false); }
   if (v === 'calendar' && store && !calDayPicked) gotoDate(dayKey(), false);
 }
@@ -1638,7 +1673,7 @@ function openCalendarItem(item,date){if(!item)return;if(date!==calSel||!calDayPi
 function renderHomeV2() {
   if (!store) return;
   gcalBoot();
-  renderMiniCal(); renderUpcoming(); renderHomeMembers(); renderSchoolV2(); paintWeatherHome(); renderGcalUi(); renderSpending();
+  renderMiniCal(); renderUpcoming(); renderHomeMembers(); renderSchoolV2(); paintWeatherHome(); renderGcalUi(); renderSpending(); try { renderStudy(); } catch (e) { console.warn(e); }
   if (!wxData) loadWeather(false);
 }
 
@@ -1648,4 +1683,36 @@ window.__setSchoolNotes = async notes => { await updateDoc(ref, { schoolNotes: n
 // HiClass 주간학습안내는 가족 시간표와 분리해 주차별로 저장합니다. 원문 파일은 저장하지 않습니다.
 window.__getHiClassWeeklyGuides = () => JSON.parse(JSON.stringify(store?.hiClassWeeklyGuides || {}));
 window.__setHiClassWeeklyGuide = async guide => { if(!guide || !/^\d{4}-\d{2}-\d{2}$/.test(guide.weekStart||'') || !Array.isArray(guide.days) || guide.days.length>5) throw new Error('주간학습안내 형식이 올바르지 않아요.'); if(new Date(guide.weekStart+'T00:00:00').getDay()!==1) throw new Error('weekStart는 그 주 월요일 날짜여야 해요(월요일이 휴일이어도 월요일 날짜). 받은 값: '+guide.weekStart); const weekDates=[0,1,2,3,4].map(i=>addDays(guide.weekStart,i)); for(const d of guide.days){ if(!weekDates.includes(String(d?.date||''))) throw new Error('days[].date가 '+guide.weekStart+' 주(월~금) 안의 날짜가 아니에요: '+String(d?.date||'')); } const clean={weekStart:guide.weekStart,weekEnd:String(guide.weekEnd||''),label:String(guide.label||'').slice(0,80),title:String(guide.title||'주간학습안내').slice(0,120),sourceTitle:String(guide.sourceTitle||'').slice(0,160),sourceUrl:safeHref(guide.sourceUrl)||'',savedAt:new Date().toISOString(),days:guide.days.slice(0,5).map(d=>({date:String(d.date||'').slice(0,10),label:String(d.label||'').slice(0,8),materials:(Array.isArray(d.materials)?d.materials:[]).slice(0,12).map(v=>typeof v==='string'?v.slice(0,240):{title:String(v.title||'').slice(0,100),detail:String(v.detail||'').slice(0,240)}),notices:(Array.isArray(d.notices)?d.notices:[]).slice(0,8).map(n=>({title:String(n.title||'').slice(0,120),detail:String(n.detail||'').slice(0,500)})),lessons:(Array.isArray(d.lessons)?d.lessons:[]).slice(0,12).map(e=>({period:String(e.period||'').slice(0,20),time:String(e.time||'').slice(0,32),subject:String(e.subject||'').slice(0,40),topic:String(e.topic||'').slice(0,180),pages:String(e.pages||'').slice(0,40)}))})),materials:(Array.isArray(guide.materials)?guide.materials:[]).slice(0,30).map(v=>typeof v==='string'?v.slice(0,240):{title:String(v.title||'').slice(0,100),detail:String(v.detail||'').slice(0,240)}),announcementTitle:String(guide.announcementTitle||'알림장 내용').slice(0,120),announcements:String(guide.announcements||'').slice(0,2500),summary:String(guide.summary||'').slice(0,2500)}; await updateDoc(ref,new FieldPath('hiClassWeeklyGuides',clean.weekStart),clean); return clean; };
+
+// ----- 공부 로드맵: 내용은 가족 저장소(store.studyRoadmap)에서 읽습니다. 코드에는 아이 정보를 넣지 않습니다. -----
+var studyGrade = lsGet('v2StudyGrade') || 'g2';
+const STUDY_SRC = { g: ['제미나이 초안', ''], c: ['Claude 보완', 'src-c'], gc: ['제미나이 + 보완', 'src-gc'] };
+function studyBadge(s) { const m = STUDY_SRC[s]; return m ? '<span class="study-src ' + m[1] + '">' + m[0] + '</span>' : ''; }
+function renderStudy() {
+  const root = $('studyRoot'); if (!root) return;
+  const d = store?.studyRoadmap;
+  if (!d || !Array.isArray(d.grades) || !d.grades.length) {
+    root.innerHTML = '<section class="vcard"><div class="vhead"><h2>📚 공부 로드맵</h2></div><p class="set-note">아직 등록된 로드맵이 없어요.</p></section>';
+    return;
+  }
+  const L = a => Array.isArray(a) ? a : [];
+  const ul = a => L(a).length ? '<ul>' + L(a).map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '';
+  const g = d.grades.find(x => x.id === studyGrade) || d.grades[0];
+  const intro = '<section class="vcard"><div class="vhead"><h2>📚 ' + esc(d.intro?.title || '공부 로드맵') + '</h2><span class="sp"></span>' + (d.updated ? '<span class="pill">' + esc(d.updated) + ' 정리</span>' : '') + '</div><p class="study-lead">' + esc(d.intro?.lead || '') + '</p></section>';
+  const principles = L(d.principles).length ? '<section class="vcard"><details><summary>🌱 공부할 때 늘 지킬 것 ' + L(d.principles).length + '가지</summary>' + '<ul>' + L(d.principles).map(p => '<li><b>' + esc(p.t) + '</b> ' + studyBadge(p.src) + '<br>' + esc(p.d) + '</li>').join('') + '</ul></details></section>' : '';
+  const chips = '<div class="study-chips" role="tablist" aria-label="학년 선택">' + d.grades.map(x => '<button type="button" class="study-chip' + (x.id === g.id ? ' on' : '') + '" role="tab" aria-selected="' + (x.id === g.id) + '" data-study-grade="' + esc(x.id) + '">' + esc(x.label) + '<small>' + esc(x.when || '') + '</small></button>').join('') + '</div>';
+  const head = '<section class="vcard"><div class="study-meta"><span class="study-theme">' + esc(g.label) + ' · ' + esc(g.theme || '') + '</span><span class="sp"></span>' + (g.hours ? '<span class="pill">⏱ ' + esc(g.hours) + '</span>' : '') + '</div></section>';
+  const subs = '<div class="study-grid">' + L(g.subjects).map(s => '<article class="study-sub"><h4>' + esc(s.name) + ' ' + studyBadge(s.src) + '</h4><p>' + esc(s.focus || '') + '</p>' + (L(s.books).length ? '<div class="study-books">' + L(s.books).map(b => '<span class="study-book">' + esc(b) + '</span>').join('') + '</div>' : '') + (L(s.checks).length ? '<h5>이렇게 확인해요</h5>' + ul(s.checks) : '') + '</article>').join('') + '</div>';
+  const extra = '<div class="study-grid">' + (L(g.parent).length ? '<article class="study-sub"><h4>👪 부모 안내</h4>' + ul(g.parent) + '</article>' : '') + (L(g.checkpoints).length ? '<article class="study-sub"><h4>🚩 이 학년의 점검 시점</h4>' + ul(g.checkpoints) + '</article>' : '') + '</div>';
+  const notes = L(d.notes).map(n => '<div class="study-note' + (n.status === '확인 필요' ? ' warn' : '') + '"><b>' + esc(n.t) + '</b><span class="study-flag">' + esc(n.status || '') + '</span><p>' + esc(n.d) + '</p></div>').join('');
+  root.innerHTML = intro + principles + chips + head + subs + extra + notes + '<p class="set-note">이 화면은 로그인한 가족 계정 모두에게 보여요. 교재와 단원 이름은 제안이니 구입 전에 최신판을 확인하세요.</p>';
+  root.querySelectorAll('[data-study-grade]').forEach(b => b.onclick = () => { studyGrade = b.dataset.studyGrade; lsSet('v2StudyGrade', studyGrade); renderStudy(); });
+}
+window.__getStudyRoadmap = () => JSON.parse(JSON.stringify(store?.studyRoadmap || null));
+window.__setStudyRoadmap = async data => {
+  if (!data || data.v !== 1 || !Array.isArray(data.grades) || !data.grades.length || data.grades.length > 8) throw new Error('공부 로드맵 형식이 올바르지 않아요.');
+  const clean = JSON.parse(JSON.stringify(data));
+  if (JSON.stringify(clean).length > 120000) throw new Error('공부 로드맵이 너무 길어요.');
+  await updateDoc(ref, { studyRoadmap: clean }); if (store) store.studyRoadmap = clean; renderStudy(); return clean.grades.length;
+};
 </script></body></html>
