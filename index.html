@@ -457,6 +457,14 @@ body.v2 #integratedHint,body.v2 #integratedTimeline,body.v2 #unifiedTaskPanel{di
 .study-table{overflow-x:auto;margin-top:8px;border:1px solid var(--line);border-radius:12px}.study-table table{width:100%;border-collapse:collapse;min-width:460px;background:#fff}.study-table th,.study-table td{padding:9px 8px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5}.study-table th{background:var(--soft);color:var(--accent);white-space:nowrap}.study-table tr:last-child td{border-bottom:0}
 @media(max-width:300px){.side button[data-view=study]{display:none!important}}
 html.watch-mode .side button[data-view=study]{display:none!important}
+.spend-locked>:not(#spendGate){display:none!important}
+.spend-gate{background:#fff;border:1px solid var(--line);border-radius:22px;padding:24px 18px;text-align:center;max-width:420px;margin:24px auto;box-shadow:0 8px 24px rgba(31,78,140,.07)}
+.spend-gate h2{margin:0 0 6px;font-size:18px}
+.spend-gate p{margin:6px 0 14px;font-size:13px;color:var(--muted);line-height:1.6}
+.spend-gate form,.sp-pw{display:grid;gap:10px;margin-top:10px}
+.spend-gate input,.sp-pw input{min-height:48px;border:1px solid var(--line);border-radius:12px;padding:0 14px;font:inherit;font-size:16px;background:#fff;color:var(--ink);min-width:0}
+.spend-gate input{text-align:center}
+.spend-gate .msg,.sp-pw .msg{min-height:20px;font-size:13px;color:var(--amber)}
 </style>
 </head>
 <body class="v2"><main>
@@ -538,8 +546,8 @@ html.watch-mode .side button[data-view=study]{display:none!important}
 <div class="wx-foot"><button type="button" class="btn small" id="wxRefresh">날씨 새로고침</button><button type="button" class="btn small" id="wxLocate">현재 위치로 변경</button><button type="button" class="btn small" id="wxResetLoc">기본 위치로</button><a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo · CC BY 4.0</a></div>
 </section></section>
 
-<section class="view" data-view-panel="spend">
-<section class="vcard" style="margin-bottom:12px"><div class="spend-top"><div class="vhead" style="margin:0"><h2>💳 가족 소비 현황</h2></div><span class="sp" style="flex:1"></span><span class="pill" id="spendUpdated">기록 없음</span><button type="button" class="btn small" id="spendMask">금액 보기</button></div>
+<section class="view spend-locked" data-view-panel="spend"><div class="spend-gate" id="spendGate" hidden></div>
+<section class="vcard" style="margin-bottom:12px"><div class="spend-top"><div class="vhead" style="margin:0"><h2>💳 가족 소비 현황</h2></div><span class="sp" style="flex:1"></span><span class="pill" id="spendUpdated">기록 없음</span><button type="button" class="btn small" id="spendMask">금액 보기</button><button type="button" class="btn small" id="spendLockBtn">🔒 잠그기</button></div>
 <div class="spend-sum"><div><small>오늘 카드 사용</small><b id="spendSumToday">–</b></div><div><small>이번 달 카드 사용</small><b id="spendSumMonth">–</b></div><div><small>결제 예정 합계</small><b id="spendSumDue">–</b></div></div>
 <p class="set-note" style="margin:0">카드사·은행과 자동으로 연결된 화면이 아니에요. 카드 앱에 보이는 금액을 적어 두는 칸이고, 저장하면 로그인한 가족 계정 모두가 볼 수 있어요. 카드번호·계좌번호·비밀번호는 적지 마세요.</p></section>
 <div class="spend-grid" id="spendCards"></div>
@@ -1330,6 +1338,7 @@ function setLifeTab(name) {
 function markNav(v) { document.querySelectorAll('.side [data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v)); }
 function goView(v, keepScroll) {
   if (v === 'life') { goView('home', true); markNav('life'); requestAnimationFrame(() => _siv.call($('lifeCard'), { behavior: 'smooth', block: 'start' })); return; }
+  if (v !== 'spend' && spendUnlocked) lockSpend();
   curView = v;
   document.querySelectorAll('[data-view-panel]').forEach(p => p.classList.toggle('on', p.dataset.viewPanel === v));
   markNav(v);
@@ -1576,7 +1585,7 @@ const SPEND_ITEMS = [
   { key: 'shinhanLoan', kind: 'loan', label: '신한은행 대출', who: '대출', icon: '🏦', c: { fg: '#1f5fb8', bg: '#e3eefc', bar: '#2f7de1' } }
 ];
 const SPEND_FIELDS = { card: [['today', '오늘 사용액'], ['month', '이번 달 사용액'], ['due', '결제 예정 금액']], loan: [['balance', '사용 중인 금액(대출 잔액)'], ['limit', '한도']], overdraft: [['signedBalance', '통장 잔고 (+ 또는 -)'], ['limit', '대출 한도']] };
-var spendShow = false, spendEdit = '';
+var spendShow = false, spendEdit = '', spendUnlocked = false, spendLockTimer = 0, spendFails = 0, spendBlockedUntil = 0;
 const won = v => Number.isFinite(v) ? (spendShow ? Math.round(v).toLocaleString('ko-KR') + '원' : '•••••') : '–';
 const spendItems = () => (store?.spending && typeof store.spending === 'object' && store.spending.items) || {};
 function spendNum(v, signed = false) { if (v === '' || v === null || v === undefined) return null; const t = String(v).replace(/[,\s원]/g, ''); if (!(signed ? /^[+-]?\d+(?:\.\d+)?$/ : /^\d+(?:\.\d+)?$/).test(t)) return NaN; const n = Number(t); return Number.isFinite(n) && n >= (signed ? -1e11 : 0) && n <= 1e11 ? Math.round(n) : NaN; }
@@ -1590,6 +1599,10 @@ function renderSpendTrends(log){if(!$('cardTrend')||!$('loanTrend'))return;const
 
 function renderSpending() {
   if (!$('spendCards') || !store) return;
+  { const pn = document.querySelector('[data-view-panel="spend"]'); if (pn) pn.classList.toggle('spend-locked', !spendUnlocked); }
+  if (!spendUnlocked) { clearSpendDom(); renderSpendGate(); return; }
+  if ($('spendGate')) $('spendGate').hidden = true;
+  ensureSpendPwForm();
   const items = spendItems(), cards = SPEND_ITEMS.filter(s => s.kind === 'card'), sum = f => { const vals = cards.map(s => items[s.key]?.[f]).filter(Number.isFinite); return vals.length ? vals.reduce((a, b) => a + b, 0) : NaN; };
   $('spendSumToday').textContent = won(sum('today')); $('spendSumMonth').textContent = won(sum('month')); $('spendSumDue').textContent = won(sum('due'));
   $('spendMask').textContent = spendShow ? '금액 가리기' : '금액 보기';
@@ -1633,6 +1646,66 @@ async function saveSpending(patchByKey, source) {
   try { await updateDoc(ref, { spending: next }); } catch (e) { if (old) store.spending = old; else delete store.spending; throw e; }
   return next;
 }
+// ----- 소비 탭 잠금: 비밀번호 해시(소금 + PBKDF2)만 가족 저장소(store.spendLock)에 두고, 비밀번호 자체는 어디에도 저장하지 않습니다. -----
+const spendB64 = u8 => btoa(String.fromCharCode(...u8)), spendUnB64 = t => Uint8Array.from(atob(t), c => c.charCodeAt(0));
+async function spendHash(pw, saltB64, iter) {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(String(pw)), 'PBKDF2', false, ['deriveBits']);
+  return spendB64(new Uint8Array(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: spendUnB64(saltB64), iterations: iter }, key, 256)));
+}
+async function spendMakeLock(pw) { const salt = spendB64(crypto.getRandomValues(new Uint8Array(16))), iter = 200000; return { v: 1, salt, iter, hash: await spendHash(pw, salt, iter) }; }
+async function spendCheck(pw) { const l = store?.spendLock; if (!l || !l.hash) return false; return (await spendHash(pw, l.salt, l.iter)) === l.hash; }
+function armSpendLock() { clearTimeout(spendLockTimer); spendLockTimer = setTimeout(lockSpend, 5 * 60 * 1000); }
+function unlockSpend() { spendUnlocked = true; spendShow = true; armSpendLock(); renderSpending(); }
+function lockSpend() { clearTimeout(spendLockTimer); spendUnlocked = false; spendShow = false; spendEdit = ''; const g = $('spendGate'); if (g) { g.hidden = true; g.dataset.sig = ''; } renderSpending(); }
+function clearSpendDom() {
+  ['spendCards', 'cardTrend', 'loanTrend', 'spendLog'].forEach(id => { const el = $(id); if (el) el.innerHTML = ''; });
+  ['spendSumToday', 'spendSumMonth', 'spendSumDue'].forEach(id => { const el = $(id); if (el) el.textContent = '–'; });
+  if ($('spendUpdated')) $('spendUpdated').textContent = ''; if ($('spendLogCount')) $('spendLogCount').textContent = '';
+  const pw = $('spendPwBox'); if (pw) pw.remove();
+}
+function renderSpendGate() {
+  const g = $('spendGate'); if (!g) return;
+  const has = !!(store?.spendLock && store.spendLock.hash), sig = has ? 'lock' : 'none';
+  if (!g.hidden && g.dataset.sig === sig) return;
+  g.hidden = false; g.dataset.sig = sig;
+  if (!has) { g.innerHTML = '<h2>🔒 소비 정보는 잠겨 있어요</h2><p>비밀번호가 아직 설정되지 않아서 금액을 숨겨 두었어요. 부모님이 설정한 뒤에 볼 수 있어요.</p>'; return; }
+  g.innerHTML = '<h2>🔒 비밀번호를 입력해 주세요</h2><p>카드·대출 금액은 비밀번호를 입력해야 볼 수 있어요.</p><form id="spendGateForm" autocomplete="off"><input id="spendGatePw" type="password" autocomplete="off" aria-label="비밀번호" placeholder="비밀번호"><button class="btn primary" type="submit">열기</button><div class="msg" id="spendGateMsg" role="status"></div></form>';
+  $('spendGateForm').onsubmit = async e => {
+    e.preventDefault(); const msg = $('spendGateMsg'), inp = $('spendGatePw'), now = Date.now();
+    if (now < spendBlockedUntil) { msg.textContent = Math.ceil((spendBlockedUntil - now) / 1000) + '초 뒤에 다시 시도해 주세요.'; return; }
+    msg.textContent = '확인하는 중…';
+    let ok = false; try { ok = await spendCheck(inp.value); } catch (err) { msg.textContent = '확인하지 못했어요. 연결을 확인해 주세요.'; return; }
+    inp.value = '';
+    if (!ok) { spendFails++; if (spendFails >= 5) { spendFails = 0; spendBlockedUntil = Date.now() + 30000; msg.textContent = '여러 번 틀렸어요. 30초 뒤에 다시 시도해 주세요.'; } else msg.textContent = '비밀번호가 맞지 않아요.'; return; }
+    spendFails = 0; unlockSpend();
+  };
+}
+function ensureSpendPwForm() {
+  const panel = document.querySelector('[data-view-panel="spend"]'); if (!panel || $('spendPwBox')) return;
+  const box = document.createElement('section'); box.className = 'vcard'; box.id = 'spendPwBox'; box.style.marginTop = '12px';
+  box.innerHTML = '<details><summary>🔑 비밀번호 바꾸기</summary><form id="spendPwForm" class="sp-pw" autocomplete="off"><input id="spendPwCur" type="password" autocomplete="off" placeholder="지금 비밀번호" aria-label="지금 비밀번호"><input id="spendPwNew" type="password" autocomplete="off" placeholder="새 비밀번호(6자 이상)" aria-label="새 비밀번호"><input id="spendPwNew2" type="password" autocomplete="off" placeholder="새 비밀번호 한 번 더" aria-label="새 비밀번호 확인"><button class="btn small primary" type="submit">바꾸기</button><div class="msg" id="spendPwMsg" role="status"></div></form></details>';
+  panel.appendChild(box);
+  $('spendPwForm').onsubmit = async e => {
+    e.preventDefault(); const msg = $('spendPwMsg'), cur = $('spendPwCur').value, n1 = $('spendPwNew').value, n2 = $('spendPwNew2').value;
+    if (n1.length < 6) { msg.textContent = '새 비밀번호는 6자 이상으로 해 주세요.'; return; }
+    if (n1 !== n2) { msg.textContent = '새 비밀번호가 서로 달라요.'; return; }
+    msg.textContent = '확인하는 중…';
+    try {
+      if (!(await spendCheck(cur))) { msg.textContent = '지금 비밀번호가 맞지 않아요.'; return; }
+      const lock = await spendMakeLock(n1); await updateDoc(ref, { spendLock: lock }); store.spendLock = lock;
+      $('spendPwCur').value = $('spendPwNew').value = $('spendPwNew2').value = ''; msg.textContent = '비밀번호를 바꿨어요.';
+    } catch (err) { msg.textContent = '바꾸지 못했어요. 연결을 확인해 주세요.'; }
+  };
+}
+$('spendLockBtn').onclick = () => lockSpend();
+document.querySelector('[data-view-panel="spend"]').addEventListener('pointerdown', () => { if (spendUnlocked) armSpendLock(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && spendUnlocked) lockSpend(); });
+// 비밀번호가 아직 없을 때만 설정할 수 있고, 이미 있으면 지금 비밀번호가 맞아야 바뀝니다.
+window.__setSpendPassword = async (pw, current) => {
+  if (typeof pw !== 'string' || pw.length < 6) throw new Error('비밀번호는 6자 이상이어야 해요.');
+  if (store?.spendLock && !(await spendCheck(String(current || '')))) throw new Error('지금 비밀번호가 맞지 않아요.');
+  const lock = await spendMakeLock(pw); await updateDoc(ref, { spendLock: lock }); store.spendLock = lock; renderSpending(); return true;
+};
 $('spendMask').onclick = () => { spendShow = !spendShow; renderSpending(); };
 // 자동 갱신 도구(예: 예약 작업)가 로그인된 가족 화면에서 금액만 넣을 때 쓰는 함수. 카드번호·계좌번호는 받지 않습니다.
 window.__getFamilySpending = () => JSON.parse(JSON.stringify(store?.spending || {}));
