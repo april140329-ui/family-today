@@ -454,6 +454,7 @@ body.v2 #integratedHint,body.v2 #integratedTimeline,body.v2 #unifiedTaskPanel{di
 .study-flag{font-size:11px;font-weight:800;border-radius:6px;padding:2px 7px;background:#eef0f5;color:var(--muted);margin-left:6px}
 .study-note.warn .study-flag{background:#fff1e6;color:var(--amber)}
 .study details>summary{cursor:pointer;font-weight:750;min-height:36px;display:flex;align-items:center}
+.study-table{overflow-x:auto;margin-top:8px;border:1px solid var(--line);border-radius:12px}.study-table table{width:100%;border-collapse:collapse;min-width:460px;background:#fff}.study-table th,.study-table td{padding:9px 8px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5}.study-table th{background:var(--soft);color:var(--accent);white-space:nowrap}.study-table tr:last-child td{border-bottom:0}
 @media(max-width:300px){.side button[data-view=study]{display:none!important}}
 html.watch-mode .side button[data-view=study]{display:none!important}
 </style>
@@ -1700,12 +1701,14 @@ function renderStudy() {
   const g = d.grades.find(x => x.id === studyGrade) || d.grades[0];
   const intro = '<section class="vcard"><div class="vhead"><h2>📚 ' + esc(d.intro?.title || '공부 로드맵') + '</h2><span class="sp"></span>' + (d.updated ? '<span class="pill">' + esc(d.updated) + ' 정리</span>' : '') + '</div><p class="study-lead">' + esc(d.intro?.lead || '') + '</p></section>';
   const principles = L(d.principles).length ? '<section class="vcard"><details><summary>🌱 공부할 때 늘 지킬 것 ' + L(d.principles).length + '가지</summary>' + '<ul>' + L(d.principles).map(p => '<li><b>' + esc(p.t) + '</b> ' + studyBadge(p.src) + '<br>' + esc(p.d) + '</li>').join('') + '</ul></details></section>' : '';
-  const chips = '<div class="study-chips" role="tablist" aria-label="학년 선택">' + d.grades.map(x => '<button type="button" class="study-chip' + (x.id === g.id ? ' on' : '') + '" role="tab" aria-selected="' + (x.id === g.id) + '" data-study-grade="' + esc(x.id) + '">' + esc(x.label) + '<small>' + esc(x.when || '') + '</small></button>').join('') + '</div>';
+  const pickSub = (gr, nm) => L(gr.subjects).find(s => s.name === nm);
+  const overview = '<section class="vcard"><details open><summary>🗺️ 초2~초6 한눈에 보기</summary><div class="study-table"><table><thead><tr><th>학년</th><th>수학</th><th>영어</th><th>국어·독서</th></tr></thead><tbody>' + d.grades.map(x => '<tr><td><b>' + esc(x.label) + '</b><br><small>' + esc(x.when || '') + '</small></td>' + ['수학', '영어', '국어·독서'].map(nm => { const sb = pickSub(x, nm); return '<td>' + (sb ? L(sb.books).map(esc).join('<br>') : '') + '</td>'; }).join('') + '</tr>').join('') + '</tbody></table></div></details></section>';
+  const chips = '<div class="study-chips\" role="tablist" aria-label="학년 선택">' + d.grades.map(x => '<button type="button" class="study-chip' + (x.id === g.id ? ' on' : '') + '" role="tab" aria-selected="' + (x.id === g.id) + '" data-study-grade="' + esc(x.id) + '">' + esc(x.label) + '<small>' + esc(x.when || '') + '</small></button>').join('') + '</div>';
   const head = '<section class="vcard"><div class="study-meta"><span class="study-theme">' + esc(g.label) + ' · ' + esc(g.theme || '') + '</span><span class="sp"></span>' + (g.hours ? '<span class="pill">⏱ ' + esc(g.hours) + '</span>' : '') + '</div></section>';
   const subs = '<div class="study-grid">' + L(g.subjects).map(s => '<article class="study-sub"><h4>' + esc(s.name) + ' ' + studyBadge(s.src) + '</h4><p>' + esc(s.focus || '') + '</p>' + (L(s.books).length ? '<div class="study-books">' + L(s.books).map(b => '<span class="study-book">' + esc(b) + '</span>').join('') + '</div>' : '') + (L(s.checks).length ? '<h5>이렇게 확인해요</h5>' + ul(s.checks) : '') + '</article>').join('') + '</div>';
   const extra = '<div class="study-grid">' + (L(g.parent).length ? '<article class="study-sub"><h4>👪 부모 안내</h4>' + ul(g.parent) + '</article>' : '') + (L(g.checkpoints).length ? '<article class="study-sub"><h4>🚩 이 학년의 점검 시점</h4>' + ul(g.checkpoints) + '</article>' : '') + '</div>';
   const notes = L(d.notes).map(n => '<div class="study-note' + (n.status === '확인 필요' ? ' warn' : '') + '"><b>' + esc(n.t) + '</b><span class="study-flag">' + esc(n.status || '') + '</span><p>' + esc(n.d) + '</p></div>').join('');
-  root.innerHTML = intro + principles + chips + head + subs + extra + notes + '<p class="set-note">이 화면은 로그인한 가족 계정 모두에게 보여요. 교재와 단원 이름은 제안이니 구입 전에 최신판을 확인하세요.</p>';
+  root.innerHTML = intro + principles + overview + chips + head + subs + extra + notes + '<p class="set-note">이 화면은 로그인한 가족 계정 모두에게 보여요. 교재와 단원 이름은 제안이니 구입 전에 최신판을 확인하세요.</p>';
   root.querySelectorAll('[data-study-grade]').forEach(b => b.onclick = () => { studyGrade = b.dataset.studyGrade; lsSet('v2StudyGrade', studyGrade); renderStudy(); });
 }
 window.__getStudyRoadmap = () => JSON.parse(JSON.stringify(store?.studyRoadmap || null));
