@@ -465,6 +465,9 @@ html.watch-mode .side button[data-view=study]{display:none!important}
 .spend-gate input,.sp-pw input{min-height:48px;border:1px solid var(--line);border-radius:12px;padding:0 14px;font:inherit;font-size:16px;background:#fff;color:var(--ink);min-width:0}
 .spend-gate input{text-align:center}
 .spend-gate .msg,.sp-pw .msg{min-height:20px;font-size:13px;color:var(--amber)}
+@media(min-width:900px){.side{overflow-y:auto;scrollbar-width:none}.side::-webkit-scrollbar{display:none}}
+@media(min-width:900px) and (max-height:820px){.side{padding:10px 8px;gap:4px}.side-logo{width:40px;height:40px;font-size:22px;margin:0 auto 4px}.side-nav{gap:4px}.side button{min-height:52px}.side button svg{width:22px;height:22px}}
+@media(min-width:900px) and (max-height:640px){.side button{min-height:42px;gap:1px}.side button svg{width:18px;height:18px}.side-logo{display:none}}
 </style>
 </head>
 <body class="v2"><main>
